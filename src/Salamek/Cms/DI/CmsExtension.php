@@ -1,10 +1,12 @@
 <?php
 
-namespace Salamek\Gitlab\DI;
+namespace Salamek\Cms\DI;
 
 use Nette;
 use Nette\DI\Compiler;
 use Nette\DI\Configurator;
+use Tracy\Debugger;
+use Nette\Utils\Strings;
 
 /**
  * Class CmsExtension
@@ -12,6 +14,9 @@ use Nette\DI\Configurator;
  */
 class CmsExtension extends Nette\DI\CompilerExtension
 {
+    //const TAG_REPOSITORY = 'salamek.cms.repository';
+    const TAG_COMPONENT = 'salamek.cms.component';
+
 
     public function loadConfiguration()
     {
@@ -20,11 +25,115 @@ class CmsExtension extends Nette\DI\CompilerExtension
 
 
         $builder->addDefinition($this->prefix('cms'))
-            ->setClass('Salamek\Cms\Cms', [$config['tempPath'], $config['presenterNamespace']])
+            ->setClass('Salamek\Cms\Cms', [$config['tempPath'], $config['presenterNamespace'], $config['layoutDir'], $config['parentClass'], $config['mappings']])
             ->addSetup('setTempPath', [$config['tempPath']])
-            ->addSetup('setPresenterNamespace', [$config['presenterNamespace']]);
+            ->addSetup('setPresenterNamespace', [$config['presenterNamespace']])
+            ->addSetup('setLayoutDir', [$config['layoutDir']])
+            ->addSetup('setParentClass', [$config['parentClass']])
+            ->addSetup('setMappings', [$config['mappings']]);
+
+
+        /*$builder->getDefinition($builder->getByType('Nette\Application\IPresenterFactory') ?: 'nette.presenterFactory')
+            ->addSetup('if (method_exists($service, ?)) { $service->setMapping([? => ?]); } ' .
+                'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }', [
+                'setMapping', 'Kdyby', 'KdybyModule\*\*Presenter', 'mapping', 'Kdyby', 'KdybyModule\*\*Presenter'
+            ]);*/
     }
 
+    private function findRepositoryMapping($class)
+    {
+        $config = $this->getConfig();
+        foreach($config['mappings'] AS $mappingComponent => $mappingRepository)
+        {
+            $match = $this->matchMapping($mappingRepository, $class);
+            if ($match)
+            {
+                return $match;
+            }
+        }
+        return null;
+    }
+
+    private function findComponentMapping($class)
+    {
+        $config = $this->getConfig();
+        foreach($config['mappings'] AS $mappingComponent => $mappingRepository)
+        {
+            $match = $this->matchMapping($mappingComponent, $class);
+            if ($match)
+            {
+                return $match;
+            }
+        }
+        return null;
+    }
+
+    private function mappingToRegexp($mapping)
+    {
+
+        if (!Strings::contains($mapping, '*'))
+        {
+            throw new \InvalidArgumentException(sprintf('There are no wildcards in mapping %s', $mapping));
+        }
+
+        $mapping = preg_quote($mapping, '/');
+
+        $replaceWildcard = '\*';
+        $wildcardsReplaces = [
+            '(?P<module>\S+)',
+            '(?P<component>\S+)',
+            '(?P<action>\S+)'
+        ];
+
+        $occurrence = substr_count($mapping, $replaceWildcard);
+        for ($i=0; $i < $occurrence; $i++)
+        {
+            $from = '/'.preg_quote($replaceWildcard, '/').'/';
+            $mapping = preg_replace($from, $wildcardsReplaces[$i], $mapping, 1);
+        }
+
+        return '/^'.$mapping.'$/i';
+    }
+
+
+    private function matchMapping($mapping, $class)
+    {
+        $regexp = $this->mappingToRegexp($mapping);
+        $matches = [];
+        if (preg_match($regexp, $class, $matches))
+        {
+            return [$matches['module'], $matches['component'], (array_key_exists('action', $matches) ? $matches['component'] : null)];
+        }
+
+        return null;
+    }
+
+    public function beforeCompile()
+    {
+        $builder = $this->getContainerBuilder();
+        $config = $this->getConfig();
+        $cms = $builder->getDefinition($this->prefix('cms'));
+        
+
+        foreach ($builder->findByType('Salamek\Cms\ICmsComponentRepository') AS $serviceName => $service) {
+            $match = $this->findRepositoryMapping($service->getClass());
+            if ($match)
+            {
+                list($module, $component, $action) = $match;
+                $cms->addSetup('addComponentRepository', ['@' . $serviceName, $module, $component]);
+            }
+        }
+
+        foreach ($builder->findByTag(self::TAG_COMPONENT) AS $serviceName => $bool) {
+            $service = $builder->getDefinition($serviceName);
+            $match = $this->findComponentMapping($service->getClass());
+            if ($match)
+            {
+                list($module, $component, $action) = $match;
+                $cms->addSetup('addComponent', ['@' . $serviceName, $module, $component, $action]);
+            }
+        }
+    }
 
     /**
      * @param Configurator $config
@@ -45,7 +154,10 @@ class CmsExtension extends Nette\DI\CompilerExtension
     {
         $defaults = [
             'tempPath' => $this->getContainerBuilder()->parameters['tempDir'] . '/cms',
-            'presenterNamespace' => 'FrontModule'
+            'presenterNamespace' => 'FrontModule',
+            'layoutDir' => $this->getContainerBuilder()->parameters['appDir'] . '/FrontModule/templates',
+            'parentClass' => 'CmsPresenter',
+            'mappings' => []
         ];
 
         return parent::getConfig($defaults, $expand);
