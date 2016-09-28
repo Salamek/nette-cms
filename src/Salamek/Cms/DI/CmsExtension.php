@@ -102,7 +102,7 @@ class CmsExtension extends Nette\DI\CompilerExtension
         $matches = [];
         if (preg_match($regexp, $class, $matches))
         {
-            return [$matches['module'], $matches['component'], (array_key_exists('action', $matches) ? $matches['component'] : null)];
+            return [$matches['module'], $matches['component'], (array_key_exists('action', $matches) ? $matches['action'] : null)];
         }
 
         return null;

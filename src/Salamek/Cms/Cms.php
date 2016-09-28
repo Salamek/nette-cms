@@ -26,7 +26,7 @@ class Cms extends Nette\Object
     private $cmsComponentFactories;
 
     /** @var array */
-    private $componentTree = [];
+    private $tree = [];
 
     /** @var array */
     private $mappings = [];
@@ -48,15 +48,12 @@ class Cms extends Nette\Object
 
     public function addComponentRepository(ICmsComponentRepository $cmsComponentRepository, $module = null, $component = null)
     {
-        Debugger::barDump([$module, $component]);
-        $this->addToComponentTree($cmsComponentRepository);
-        $this->cmsComponentRepositories[] = $cmsComponentRepository;
+        $this->addRepositoryToTree($cmsComponentRepository, $module, $component);
     }
 
     public function addComponent($cmsComponentFactory, $module = null, $component = null, $action = null)
     {
-        Debugger::barDump([$module, $component, $action]);
-        $this->cmsComponentFactories[] = $cmsComponentFactory;
+        $this->addComponentToTree($cmsComponentFactory, $module, $component, $action);
     }
 
     public function setPresenterNamespace($presenterNamespace)
@@ -130,8 +127,26 @@ class Cms extends Nette\Object
         return $this->cmsComponentFactories;
     }
 
-    private function addToComponentTree(ICmsComponentRepository $cmsComponentRepository)
+    /**
+     * @param ICmsComponentRepository $cmsComponentRepository
+     * @param string $module
+     * @param string $component
+     */
+    private function addRepositoryToTree(ICmsComponentRepository $cmsComponentRepository, $module, $component)
     {
-        $cmsComponentRepository->getActions();
+        $this->tree[$module][$component]['repository'] = $cmsComponentRepository;
+    }
+
+    private function addComponentToTree($cmsComponentFactory, $module, $component, $action)
+    {
+        $this->tree[$module][$component]['components'][$action] = $cmsComponentFactory;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTree()
+    {
+        return $this->tree;
     }
 }
