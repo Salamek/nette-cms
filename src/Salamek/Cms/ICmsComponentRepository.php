@@ -10,13 +10,8 @@ namespace Salamek\Cms;
 interface ICmsComponentRepository
 {
     /**
-     * @return array
-     */
-    public function getActions();
-
-    /**
      * @param string $componentAction
-     * @return ICmsActionOption[]
+     * @return ICmsActionOption[]|false|null
      */
     public function getActionOptions($componentAction);
 

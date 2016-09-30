@@ -2,6 +2,7 @@
 
 namespace Salamek\Cms\DI;
 
+use Kdyby\Console\DI\ConsoleExtension;
 use Nette;
 use Nette\DI\Compiler;
 use Nette\DI\Configurator;
@@ -33,11 +34,31 @@ class CmsExtension extends Nette\DI\CompilerExtension
             ->addSetup('setMappings', [$config['mappings']]);
 
 
+        $this->loadConsole();
+
         /*$builder->getDefinition($builder->getByType('Nette\Application\IPresenterFactory') ?: 'nette.presenterFactory')
             ->addSetup('if (method_exists($service, ?)) { $service->setMapping([? => ?]); } ' .
                 'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }', [
                 'setMapping', 'Kdyby', 'KdybyModule\*\*Presenter', 'mapping', 'Kdyby', 'KdybyModule\*\*Presenter'
             ]);*/
+    }
+
+    protected function loadConsole()
+    {
+        $builder = $this->getContainerBuilder();
+
+        foreach ($this->loadFromFile(__DIR__ . '/console.neon') as $i => $command) {
+            $cli = $builder->addDefinition($this->prefix('cli.' . $i))
+                ->addTag(ConsoleExtension::TAG_COMMAND)
+                ->setInject(FALSE); // lazy injects
+
+            if (is_string($command)) {
+                $cli->setClass($command);
+
+            } else {
+                throw new \InvalidArgumentException;
+            }
+        }
     }
 
     private function findRepositoryMapping($class)
@@ -70,7 +91,6 @@ class CmsExtension extends Nette\DI\CompilerExtension
 
     private function mappingToRegexp($mapping)
     {
-
         if (!Strings::contains($mapping, '*'))
         {
             throw new \InvalidArgumentException(sprintf('There are no wildcards in mapping %s', $mapping));
@@ -111,7 +131,6 @@ class CmsExtension extends Nette\DI\CompilerExtension
     public function beforeCompile()
     {
         $builder = $this->getContainerBuilder();
-        $config = $this->getConfig();
         $cms = $builder->getDefinition($this->prefix('cms'));
         
 
@@ -120,21 +139,21 @@ class CmsExtension extends Nette\DI\CompilerExtension
             if ($match)
             {
                 list($module, $component, $action) = $match;
-                $cms->addSetup('addComponentRepository', ['@' . $serviceName, $module, $component]);
+                $cms->addSetup('addComponentRepository', ['@' . $serviceName, $module, $component, $service->getClass()]);
             }
         }
-
+        
         foreach ($builder->findByTag(self::TAG_COMPONENT) AS $serviceName => $bool) {
             $service = $builder->getDefinition($serviceName);
-            $match = $this->findComponentMapping($service->getClass());
+            $match = $this->findComponentMapping($service->getImplement());
             if ($match)
             {
                 list($module, $component, $action) = $match;
-                $cms->addSetup('addComponent', ['@' . $serviceName, $module, $component, $action]);
+                $cms->addSetup('addComponent', ['@' . $serviceName, $module, $component, $action, $service->getImplement()]);
             }
         }
     }
-
+    
     /**
      * @param Configurator $config
      * @param string $extensionName

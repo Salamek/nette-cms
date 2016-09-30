@@ -24,4 +24,14 @@ interface IMenuContent
      */
     public function getMenu();
 
+    /**
+     * @return integer
+     */
+    public function getId();
+
+    /**
+     * @return string
+     */
+    public function getFactory();
+
 }

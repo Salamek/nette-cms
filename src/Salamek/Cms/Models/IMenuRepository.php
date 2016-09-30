@@ -68,5 +68,20 @@ interface IMenuRepository
     /**
      * @return IMenu[]
      */
-    public function getPages();
+    public function getAll();
+
+    /**
+     * @param IMenu $menu
+     * @param string $latteTemplate
+     * @return mixed
+     */
+    public function saveLatteTemplate(IMenu $menu, $latteTemplate);
+
+    /**
+     * @param IMenu $menu
+     * @param $presenterName
+     * @param $actionName
+     * @return mixed
+     */
+    public function savePresenterAction(IMenu $menu, $presenterName, $actionName);
 }

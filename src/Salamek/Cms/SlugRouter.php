@@ -11,6 +11,7 @@ use Nette\Utils\Strings;
 use Nette\Object;
 use Nette\Application\IRouter;
 use Nette;
+use Tracy\Debugger;
 
 /**
  * Description of SlugRouter
@@ -490,16 +491,26 @@ class SlugRouter extends Object implements IRouter
      */
     public function constructUrl(Nette\Application\Request $appRequest, Nette\Http\Url $refUrl)
     {
+        Debugger::barDump($appRequest);
+        if (array_key_exists('slug', $appRequest->parameters))
+        {
+            $matchParams = $appRequest->parameters;
+            unset($matchParams['slug']);
 
-        $matchParams = $appRequest->parameters;
-        unset($matchParams['slug']);
-        /** @var Menu $pageInfo */
-        list($pageInfo, $advancedParams) = $this->structureMenuRepository->getBySlug($appRequest->parameters['slug'], $matchParams);
-        if ($pageInfo && $pageInfo->isHomePage() == true) {
-            $params = $appRequest->parameters;
-            $params['slug'] = null;
-            $appRequest->setParameters($params);
+
+            //getByPresenterAndActionAndParameters
+
+            /** @var Menu $pageInfo */
+            list($pageInfo, $advancedParams) = $this->structureMenuRepository->getBySlug($appRequest->parameters['slug'], $matchParams);
+            if ($pageInfo && $pageInfo->isHomePage() == true) {
+                $params = $appRequest->parameters;
+                $params['slug'] = null;
+                $appRequest->setParameters($params);
+            }
         }
+
+        $params['slug'] = 'tree-menu-child-0';
+        $appRequest->setParameters($params);
 
         if ($this->flags & self::ONE_WAY) {
             return null;

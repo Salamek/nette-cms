@@ -15,7 +15,8 @@
     }
   ],
   "require": {
-    "nette/di": "~2.4"
+    "nette/di": "~2.4",
+    "kdyby/console": "~2.5@dev"
   },
   "require-dev": {
     "nette/tester": "@dev"

@@ -7,11 +7,13 @@ namespace Salamek\Cms\Models;
 
 interface IMenuContentRepository
 {
+    public function getByOneByMenuFactoryParameters(IMenu $menu, $factory, array $parameters);
+
+    public function saveMenuContent(IMenu $menu, $factory, array $parameters);
+
     /**
-     * @param IMenu $menu
-     * @param IComponentAction $componentAction
-     * @param array $parameters
-     * @return array
+     * @param $id
+     * @return IMenuContent
      */
-    public function getByMenuAndComponentActionAndParameters(IMenu $menu, IComponentAction $componentAction, array $parameters);
+    public function getOneById($id);
 }
