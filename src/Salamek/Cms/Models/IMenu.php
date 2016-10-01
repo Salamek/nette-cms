@@ -99,9 +99,11 @@ interface IMenu
     public function setIsSystem($isSystem);
 
     /**
-     * @param array $parameters
+     * @param $parameters
+     * @param callable $parameterSumGenerator
+     * @return void
      */
-    public function setParameters($parameters);
+    public function setParameters($parameters, callable $parameterSumGenerator);
 
     /**
      * @param boolean $isRegularExpression
