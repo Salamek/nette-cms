@@ -42,6 +42,9 @@ class SlugRouter extends Object implements IRouter
         PATH_OPTIONAL = 1,
         CONSTANT = 2;
 
+    /** @var array */
+    public $ignoreParameters = [];
+
     /** @deprecated */
     public static $defaultFlags = 0;
 
@@ -113,9 +116,10 @@ class SlugRouter extends Object implements IRouter
     /** @var MenuRepository */
     private $structureMenuRepository;
 
-    public function __construct($mask, MenuRepository $menuRepository)
+    public function __construct($mask, MenuRepository $menuRepository, $ignoreParameters = [])
     {
         $this->structureMenuRepository = $menuRepository;
+        $this->ignoreParameters = $ignoreParameters;
         $this->setMask($mask);
     }
 
@@ -493,9 +497,13 @@ class SlugRouter extends Object implements IRouter
     {
 
         $searchParameters = $appRequest->parameters;
-        unset($searchParameters['action']);
-        $pageInfo = $this->structureMenuRepository->getByPresenterAndActionAndParameters($appRequest->getPresenterName(), $appRequest->parameters['action'], $searchParameters);
 
+        foreach($this->ignoreParameters AS $ignoreParameter)
+        {
+            unset($searchParameters[$ignoreParameter]);
+        }
+
+        $pageInfo = $this->structureMenuRepository->getByPresenterAndActionAndParameters($appRequest->getPresenterName(), $appRequest->parameters['action'], $searchParameters);
         $params = $appRequest->parameters;
         if ($pageInfo && $pageInfo->isHomePage() == true) {
             $params['slug'] = null;
@@ -507,8 +515,7 @@ class SlugRouter extends Object implements IRouter
         else
         {
             //return null;
-            Debugger::barDump($pageInfo);
-            Debugger::barDump($appRequest);
+            //!FIXME WOOT TO DO HERE
         }
 
         $appRequest->setParameters($params);
