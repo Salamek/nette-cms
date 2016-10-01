@@ -504,16 +504,14 @@ class Cms extends Object
     private function generateEditableLatteTemplate(IMenu $menu, array $structure)
     {
         $compiledLayout = $this->buildLayoutMapping($this->getLayoutMapping($menu->getLayoutName()));
-
         $lines = [];
-
         foreach ($structure AS $blockName => $rows) {
             $blockLines = [];
             $blockLines[] = sprintf('{block #%s}', $blockName);
             foreach ($rows AS $row) {
                 $blockLines[] = '<div class="row row-editable">';
                 foreach ($row AS $col) {
-                    $menuContent = $this->saveMenuContent($menu, $col['action']['factory'], $col['action']['actionOption']);
+                    $menuContent = $this->saveMenuContent($menu, $col['action']['factory'], $col['action']['parameters']);
                     $blockLines[] = sprintf('  <div class="col-editable col-%s-%s">', $col['type'], $col['col']);
                     $blockLines[] = '    <div class="col-editable-holder">';
                     $blockLines[] = '      ' . $this->generateCmsBlockSyntax($menuContent);
@@ -532,8 +530,9 @@ class Cms extends Object
         }
 
         $latteTemplate = implode("\n", $lines);
-        
         $this->menuRepository->saveLatteTemplate($menu, $latteTemplate);
+
+        $this->generateMenuPage($menu);
     }
 
 
@@ -568,6 +567,7 @@ class Cms extends Object
                 $structure[$blockName] = $newRows;
             }
         }
+
 
         $this->generateEditableLatteTemplate($menu, $structure);
     }
@@ -656,7 +656,7 @@ class Cms extends Object
             {
                 $class->addProperty($propertyName)
                     ->setVisibility('public')
-                    ->addComment('@var '.$menuContent->getFactory().' @inject');
+                    ->addComment('@var '.(Strings::startsWith($menuContent->getFactory(), '\\') ? $menuContent->getFactory() : '\\'.$menuContent->getFactory()).' @inject');
 
                 $usedInjections[] = $usedInjections;
             }
@@ -665,7 +665,7 @@ class Cms extends Object
             $componentList[$menuContent->getId()] = $componentName;
             $class->addMethod('createComponent'.$componentName)
                 ->setFinal(true)
-                ->addBody('$cmsComponentConfiguration = new Salamek\Cms\CmsActionOption(\'NIY\', '.var_export($menuContent->getParameters(), true).');')
+                ->addBody('$cmsComponentConfiguration = new \Salamek\Cms\CmsActionOption(\'NIY\', '.var_export($menuContent->getParameters(), true).');')
                 ->addBody('$control = $this->?->create($cmsComponentConfiguration);', [$propertyName])
                 ->addBody('return $control;');
         }
@@ -694,9 +694,6 @@ class Cms extends Object
         }
     }
 
-
-
-
     /**
      * @param $string
      * @param bool $capitalizeFirstCharacter
@@ -704,7 +701,6 @@ class Cms extends Object
      */
     private function dashesToCamelCase($string, $capitalizeFirstCharacter = true)
     {
-
         $str = str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
 
         if (!$capitalizeFirstCharacter) {
