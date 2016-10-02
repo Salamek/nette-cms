@@ -495,15 +495,7 @@ class SlugRouter extends Object implements IRouter
      */
     public function constructUrl(Nette\Application\Request $appRequest, Nette\Http\Url $refUrl)
     {
-
-        $searchParameters = $appRequest->parameters;
-
-        foreach($this->ignoreParameters AS $ignoreParameter)
-        {
-            unset($searchParameters[$ignoreParameter]);
-        }
-
-        $pageInfo = $this->structureMenuRepository->getByPresenterAndActionAndParameters($appRequest->getPresenterName(), $appRequest->parameters['action'], $searchParameters);
+        $pageInfo = $this->structureMenuRepository->getByPresenterAndActionAndParameters($appRequest->getPresenterName(), $appRequest->parameters['action'], null);
         $params = $appRequest->parameters;
         if ($pageInfo && $pageInfo->isHomePage() == true) {
             $params['slug'] = null;
