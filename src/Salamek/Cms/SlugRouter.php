@@ -112,14 +112,12 @@ class SlugRouter extends Object implements IRouter
     /** @var string */
     private $lastBaseUrl;
 
-
     /** @var MenuRepository */
     private $structureMenuRepository;
 
-    public function __construct($mask, MenuRepository $menuRepository, $ignoreParameters = [])
+    public function __construct($mask, MenuRepository $menuRepository)
     {
         $this->structureMenuRepository = $menuRepository;
-        $this->ignoreParameters = $ignoreParameters;
         $this->setMask($mask);
     }
 
@@ -329,7 +327,6 @@ class SlugRouter extends Object implements IRouter
      */
     public function match(Nette\Http\IRequest $httpRequest)
     {
-
         // 1) URL MASK
         $url = $httpRequest->getUrl();
         $re = $this->re;
@@ -460,32 +457,6 @@ class SlugRouter extends Object implements IRouter
             $httpRequest->getFiles(),
             [Request::SECURED => $httpRequest->isSecured()]
         );
-
-
-        //$request = parent::match($httpRequest);
-        /*
-        if ($request === null) {
-            return null;
-        }
-
-        $params = $request->parameters;
-
-        list($pageInfo, $advancedParams) = $this->structureMenuRepository->getBySlug($params['slug'], $params);
-
-
-        if (!$pageInfo) {
-            return null;
-        }
-
-        if ($advancedParams) {
-            foreach ($advancedParams AS $k => $v) {
-                $params[$k] = $v;
-            }
-        }
-
-        $params['action'] = $pageInfo->getAction();
-
-        return new Request($pageInfo->getPresenter(), $httpRequest->getMethod(), $params, $httpRequest->getPost(), $httpRequest->getFiles(), [Request::SECURED => $httpRequest->isSecured()]);*/
     }
 
     /**
@@ -506,8 +477,7 @@ class SlugRouter extends Object implements IRouter
         }
         else
         {
-            //return null;
-            //!FIXME WOOT TO DO HERE
+            return null;
         }
 
         $appRequest->setParameters($params);

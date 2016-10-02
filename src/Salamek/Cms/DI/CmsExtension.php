@@ -26,21 +26,20 @@ class CmsExtension extends Nette\DI\CompilerExtension
 
 
         $builder->addDefinition($this->prefix('cms'))
-            ->setClass('Salamek\Cms\Cms', [$config['tempPath'], $config['presenterNamespace'], $config['layoutDir'], $config['parentClass'], $config['mappings']])
+            ->setClass('Salamek\Cms\Cms', [$config['tempPath'], $config['presenterNamespace'], $config['layoutDir'], $config['parentClass'], $config['mappings'], $config['defaultLayout']])
             ->addSetup('setTempPath', [$config['tempPath']])
             ->addSetup('setPresenterNamespace', [$config['presenterNamespace']])
             ->addSetup('setLayoutDir', [$config['layoutDir']])
             ->addSetup('setParentClass', [$config['parentClass']])
+            ->addSetup('setDefaultLayout', [$config['defaultLayout']])
             ->addSetup('setMappings', [$config['mappings']]);
 
+        $builder->addDefinition($this->prefix('helpers'))
+            ->setClass('Salamek\Cms\TemplateHelpers')
+            ->setFactory($this->prefix('@cms') . '::createTemplateHelpers')
+            ->setInject(FALSE);
 
         $this->loadConsole();
-
-        /*$builder->getDefinition($builder->getByType('Nette\Application\IPresenterFactory') ?: 'nette.presenterFactory')
-            ->addSetup('if (method_exists($service, ?)) { $service->setMapping([? => ?]); } ' .
-                'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }', [
-                'setMapping', 'Kdyby', 'KdybyModule\*\*Presenter', 'mapping', 'Kdyby', 'KdybyModule\*\*Presenter'
-            ]);*/
     }
 
     protected function loadConsole()
@@ -61,6 +60,10 @@ class CmsExtension extends Nette\DI\CompilerExtension
         }
     }
 
+    /**
+     * @param $class
+     * @return array|null
+     */
     private function findRepositoryMapping($class)
     {
         $config = $this->getConfig();
@@ -75,6 +78,10 @@ class CmsExtension extends Nette\DI\CompilerExtension
         return null;
     }
 
+    /**
+     * @param $class
+     * @return array|null
+     */
     private function findComponentMapping($class)
     {
         $config = $this->getConfig();
@@ -89,6 +96,10 @@ class CmsExtension extends Nette\DI\CompilerExtension
         return null;
     }
 
+    /**
+     * @param $mapping
+     * @return string
+     */
     private function mappingToRegexp($mapping)
     {
         if (!Strings::contains($mapping, '*'))
@@ -115,7 +126,11 @@ class CmsExtension extends Nette\DI\CompilerExtension
         return '/^'.$mapping.'$/i';
     }
 
-
+    /**
+     * @param $mapping
+     * @param $class
+     * @return array|null
+     */
     private function matchMapping($mapping, $class)
     {
         $regexp = $this->mappingToRegexp($mapping);
@@ -152,6 +167,33 @@ class CmsExtension extends Nette\DI\CompilerExtension
                 $cms->addSetup('addComponent', ['@' . $serviceName, $module, $component, $action, $service->getImplement()]);
             }
         }
+
+
+        $builder = $this->getContainerBuilder();
+        $registerToLatte = function (Nette\DI\ServiceDefinition $def) {
+            $def->addSetup('?->onCompile[] = function($engine) { Salamek\Cms\Macros\Latte::install($engine->getCompiler()); }', ['@self']);
+
+            if (method_exists('Latte\Engine', 'addProvider')) { // Nette 2.4
+                $def->addSetup('addProvider', ['cms', $this->prefix('@cms')])
+                    ->addSetup('addFilter', ['cmsLink', [$this->prefix('@helpers'), 'cmsLinkFilterAware']]);
+            } else {
+                $def->addSetup('addFilter', ['getCms', [$this->prefix('@helpers'), 'getCms']])
+                    ->addSetup('addFilter', ['cmsLink', [$this->prefix('@helpers'), 'cmsLink']]);
+            }
+        };
+
+        $latteFactoryService = $builder->getByType('Nette\Bridges\ApplicationLatte\ILatteFactory');
+        if (!$latteFactoryService || !self::isOfType($builder->getDefinition($latteFactoryService)->getClass(), 'Latte\engine')) {
+            $latteFactoryService = 'nette.latteFactory';
+        }
+
+        if ($builder->hasDefinition($latteFactoryService) && self::isOfType($builder->getDefinition($latteFactoryService)->getClass(), 'Latte\Engine')) {
+            $registerToLatte($builder->getDefinition($latteFactoryService));
+        }
+
+        if ($builder->hasDefinition('nette.latte')) {
+            $registerToLatte($builder->getDefinition('nette.latte'));
+        }
     }
     
     /**
@@ -175,10 +217,21 @@ class CmsExtension extends Nette\DI\CompilerExtension
             'tempPath' => $this->getContainerBuilder()->parameters['tempDir'] . '/cms',
             'presenterNamespace' => 'FrontModule',
             'layoutDir' => $this->getContainerBuilder()->parameters['appDir'] . '/FrontModule/templates',
+            'defaultLayout' => 'layout',
             'parentClass' => 'CmsPresenter',
             'mappings' => []
         ];
 
         return parent::getConfig($defaults, $expand);
+    }
+
+    /**
+     * @param string $class
+     * @param string $type
+     * @return bool
+     */
+    private static function isOfType($class, $type)
+    {
+        return $class === $type || is_subclass_of($class, $type);
     }
 }

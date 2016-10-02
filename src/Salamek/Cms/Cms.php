@@ -2,6 +2,7 @@
 
 namespace Salamek\Cms;
 
+use Nette\Application\Application;
 use Nette\IOException;
 use Nette\PhpGenerator\ClassType;
 use Nette\Utils\Finder;
@@ -40,6 +41,9 @@ class Cms extends Object
     /** @var array */
     private $mappings = [];
 
+    /** @var string */
+    private $defaultLayout = 'layout';
+
     /**
      * @var string
      */
@@ -52,33 +56,27 @@ class Cms extends Object
 
     /** @var IMenuContentRepository */
     private $contentRepository;
+
+    /** @var Application */
+    private $application;
     
-    public function __construct($tempPath, $presenterNamespace, $layoutDir, $parentClass, $mappings, IMenuRepository $menuRepository, IMenuContentRepository $contentRepository)
+    public function __construct($tempPath, $presenterNamespace, $layoutDir, $parentClass, $mappings, $defaultLayout, IMenuRepository $menuRepository, IMenuContentRepository $contentRepository, Application $application)
     {
         $this->setTempPath($tempPath);
         $this->setPresenterNamespace($presenterNamespace);
         $this->setLayoutDir($layoutDir);
         $this->setParentClass($parentClass);
         $this->setMappings($mappings);
+        $this->setDefaultLayout($defaultLayout);
 
         $this->menuRepository = $menuRepository;
         $this->contentRepository = $contentRepository;
+        $this->application = $application;
     }
-
 
     public function setTempPath($tempPath)
     {
         $this->tempPath = $tempPath;
-    }
-
-    public function addComponentRepository(ICmsComponentRepository $cmsComponentRepository, $module, $component, $class)
-    {
-        $this->addRepositoryToTree($cmsComponentRepository, $module, $component, $class);
-    }
-
-    public function addComponent($cmsComponentFactory, $module, $component, $action, $class)
-    {
-        $this->addComponentToTree($cmsComponentFactory, $module, $component, $action, $class);
     }
 
     public function setPresenterNamespace($presenterNamespace)
@@ -94,6 +92,11 @@ class Cms extends Object
     public function setParentClass($parentClass)
     {
         $this->parentClass = $parentClass;
+    }
+
+    public function setDefaultLayout($defaultLayout)
+    {
+        $this->defaultLayout = $defaultLayout;
     }
 
     /**
@@ -152,7 +155,7 @@ class Cms extends Object
         return $this->cmsComponentFactories;
     }
 
-    private function addRepositoryToTree(ICmsComponentRepository $cmsComponentRepository, $module, $component, $class)
+    public function addComponentRepository(ICmsComponentRepository $cmsComponentRepository, $module, $component, $class)
     {
         $this->tree[$module][$component]['repository'] = [
             'object' => $cmsComponentRepository,
@@ -160,7 +163,7 @@ class Cms extends Object
         ];
     }
 
-    private function addComponentToTree($cmsComponentFactory, $module, $component, $action, $implement)
+    public function addComponent($cmsComponentFactory, $module, $component, $action, $implement)
     {
         //Check if repository exists for component
         if (array_key_exists($module, $this->tree) && array_key_exists($component, $this->tree[$module]) && array_key_exists('repository', $this->tree[$module][$component]))
@@ -676,6 +679,97 @@ class Cms extends Object
 
         return $componentList;
     }
+
+    /**
+     * @return TemplateHelpers
+     */
+    public function createTemplateHelpers()
+    {
+        return new TemplateHelpers($this);
+    }
+
+
+    public function findComponentActionPresenter($name, array $parameters = [])
+    {
+        // 1) Find presenter with component created by system
+        // 2) Find presenter with component created by non-system
+        // 3) Create new presenter with component created as system
+
+        // Find factory for name
+        list($module, $component, $action) = explode('\\', $name);
+
+        if (!array_key_exists($module,  $this->tree) || !array_key_exists($component,  $this->tree[$module]) || !array_key_exists($action,  $this->tree[$module][$component]['actions']))
+        {
+            throw new \InvalidArgumentException(sprintf('Component action %s not found in tree', $name));
+        }
+
+        $componentAction = $this->tree[$module][$component]['actions'][$action];
+
+        /** @var ICmsComponentRepository $componentRepository */
+        $componentRepository = $this->tree[$module][$component]['repository']['object'];
+
+        //Find menu item by componentAction and parameters created by system
+        $menu = $this->menuRepository->getOneByFactoryAndParametersAndIsSystem($componentAction['implement'], $parameters, true);
+
+        if (!$menu)
+        {
+            $menu = $this->menuRepository->getOneByFactoryAndParametersAndIsSystem($componentAction['implement'], $parameters, false);
+        }
+
+        if (!$menu)
+        {
+            Debugger::barDump($parameters);
+
+            $componentActionInfo = $componentRepository->getActionOption($action, $parameters);
+            Debugger::barDump($componentActionInfo->getParameters());
+            $menu = $this->menuRepository->createNewMenu(
+                $componentActionInfo->getName(),
+                $componentActionInfo->getMetaDescription(),
+                $componentActionInfo->getMetaKeywords(),
+                $componentActionInfo->getMetaRobots(),
+                $componentActionInfo->getName(),
+                $componentActionInfo->getName(),
+                true,
+                true,
+                false,
+                '0.4',
+                true,
+                true,
+                null,
+                null,
+                true,
+                [],
+                false,
+                false,
+                $this->defaultLayout
+            );
+
+            $this->generateEditableLatteTemplate($menu, [ //block
+                $this->defaultBlockName => [ //rows
+                    [ //row
+                        [ //col
+                            'col' => '12',
+                            'type' => 'sm',
+                            'action' => [
+                                'factory' => $componentAction['implement'],
+                                'parameters' => $componentActionInfo->getParameters()
+                            ]
+                        ]
+                    ]
+                ]
+            ]);
+        }
+
+        return $menu;
+    }
+
+    public function getLinkForMenu(IMenu $menu)
+    {
+        $parameters = $menu->getParameters();
+        $parameters['slug'] = $menu->getSlug();
+        return $this->application->getPresenter()->link($menu->getPresenter().':'.$menu->getAction(), $parameters);
+    }
+
 
     /**
      * @param string $dir
