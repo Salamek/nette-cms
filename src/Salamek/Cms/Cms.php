@@ -438,7 +438,7 @@ class Cms extends Object
      */
     public function saveMenuContent(IMenu $menu, $factory, array $parameters)
     {
-        $menuContentFound = $this->contentRepository->getByOneByMenuFactoryParameters($menu, $factory, $parameters);
+        $menuContentFound = $this->contentRepository->getOneByMenuFactoryParameters($menu, $factory, $parameters);
         if ($menuContentFound) {
             return $menuContentFound;
         }
@@ -673,7 +673,9 @@ class Cms extends Object
                 ->addBody('return $control;');
         }
 
-        file_put_contents($path.'/'.$presenterName.'.php', '<?php'.PHP_EOL.'namespace '.$this->presenterNamespace.';'.PHP_EOL.(string) $class);
+        $filePath = $path.'/'.$presenterName.'.php';
+        file_put_contents($filePath, '<?php'.PHP_EOL.'namespace '.$this->presenterNamespace.';'.PHP_EOL.(string) $class);
+        require_once ($filePath); //We need to require new presenter ASAP
 
         $this->menuRepository->savePresenterAction($menu, $this->dashesToCamelCase($menu->getSlug()), 'default');
 
@@ -718,10 +720,7 @@ class Cms extends Object
 
         if (!$menu)
         {
-            Debugger::barDump($parameters);
-
             $componentActionInfo = $componentRepository->getActionOption($action, $parameters);
-            Debugger::barDump($componentActionInfo->getParameters());
             $menu = $this->menuRepository->createNewMenu(
                 $componentActionInfo->getName(),
                 $componentActionInfo->getMetaDescription(),

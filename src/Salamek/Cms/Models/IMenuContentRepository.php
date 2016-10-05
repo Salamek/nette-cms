@@ -13,7 +13,7 @@ interface IMenuContentRepository
      * @param array $parameters
      * @return mixed
      */
-    public function getByOneByMenuFactoryParameters(IMenu $menu, $factory, array $parameters);
+    public function getOneByMenuFactoryParameters(IMenu $menu, $factory, array $parameters);
 
     public function saveMenuContent(IMenu $menu, $factory, array $parameters);
 

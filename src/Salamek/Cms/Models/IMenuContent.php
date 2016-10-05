@@ -8,12 +8,7 @@ namespace Salamek\Cms\Models;
 
 interface IMenuContent
 {
-
-    /**
-     * @return IComponentAction
-     */
-    public function getComponentAction();
-
+    
     /**
      * @return array
      */
