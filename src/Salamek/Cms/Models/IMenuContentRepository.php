@@ -15,6 +15,12 @@ interface IMenuContentRepository
      */
     public function getOneByMenuFactoryParameters(IMenu $menu, $factory, array $parameters);
 
+    /**
+     * @param IMenu $menu
+     * @param $factory
+     * @param array $parameters
+     * @return mixed
+     */
     public function saveMenuContent(IMenu $menu, $factory, array $parameters);
 
     /**
@@ -22,4 +28,10 @@ interface IMenuContentRepository
      * @return IMenuContent
      */
     public function getOneById($id);
+
+    /**
+     * @param IMenu $menu
+     * @return mixed
+     */
+    public function clearMenuContent(IMenu $menu);
 }

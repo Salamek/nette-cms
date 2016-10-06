@@ -501,11 +501,11 @@ class Cms extends Object
             return substr($string, $startingTag, $endTag - $startingTag);
         }
     }
-
-
-
+    
     private function generateEditableLatteTemplate(IMenu $menu, array $structure)
     {
+        // Clear menu content
+        $this->contentRepository->clearMenuContent($menu);
         $compiledLayout = $this->buildLayoutMapping($this->getLayoutMapping($menu->getLayoutName()));
         $lines = [];
         foreach ($structure AS $blockName => $rows) {
