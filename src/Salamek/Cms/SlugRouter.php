@@ -11,6 +11,7 @@ use Nette\Utils\Strings;
 use Nette\Object;
 use Nette\Application\IRouter;
 use Nette;
+use Salamek\Cms\Models\IMenuRepository;
 use Tracy\Debugger;
 
 /**
@@ -112,10 +113,10 @@ class SlugRouter extends Object implements IRouter
     /** @var string */
     private $lastBaseUrl;
 
-    /** @var MenuRepository */
+    /** @var IMenuRepository */
     private $structureMenuRepository;
 
-    public function __construct($mask, MenuRepository $menuRepository)
+    public function __construct($mask, IMenuRepository $menuRepository)
     {
         $this->structureMenuRepository = $menuRepository;
         $this->setMask($mask);
@@ -431,6 +432,7 @@ class SlugRouter extends Object implements IRouter
             }
         }
 
+
         $params[self::PRESENTER_KEY] = $pageInfo->getPresenter();
         $params['action'] = $pageInfo->getAction();
 
@@ -447,7 +449,6 @@ class SlugRouter extends Object implements IRouter
             $presenter = (isset($params[self::MODULE_KEY]) ? $params[self::MODULE_KEY] . ':' : '') . $presenter;
             unset($params[self::MODULE_KEY]);
         }
-
 
         return new Request(
             $presenter,
