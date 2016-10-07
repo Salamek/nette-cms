@@ -51,6 +51,8 @@ class Cms extends Object
 
     private $defaultBlockName = 'content';
 
+    private $presenterPrefix = 'Cms';
+
     /** @var IMenuRepository */
     private $menuRepository;
 
@@ -531,7 +533,7 @@ class Cms extends Object
                 $compiledLayout
             );
         }
-
+        
         $latteTemplate = implode("\n", $lines);
         $this->menuRepository->saveLatteTemplate($menu, $latteTemplate);
 
@@ -590,11 +592,11 @@ class Cms extends Object
         //Create templates namespace dir
         $this->mkdir($this->tempPath.'/templates/'.str_replace('Module', '', $this->presenterNamespace));
 
-        //Create templates presenter dir
-        $templatePath = $this->tempPath.'/templates/'.str_replace('Module', '', $this->presenterNamespace).'/'.$this->dashesToCamelCase($menu->getSlug());
-        $this->mkdir($templatePath);
-
         $componentList = $this->generateMenuPresenter($menu, $presenterDir);
+
+        //Create templates presenter dir
+        $templatePath = $this->tempPath.'/templates/'.str_replace('Module', '', $this->presenterNamespace).'/'.$this->presenterPrefix.$menu->getId();
+        $this->mkdir($templatePath);
 
         $this->generateMenuTemplate($menu, $componentList, $templatePath);
     }
@@ -632,7 +634,7 @@ class Cms extends Object
      */
     private function generateMenuPresenter(IMenu $menu, $path)
     {
-        $presenterName = $this->dashesToCamelCase($menu->getSlug()).'Presenter';
+        $presenterName = $this->presenterPrefix.$menu->getId().'Presenter';
         $class = new ClassType($presenterName);
         $class->setAbstract(false)
             ->setFinal(true)
@@ -677,7 +679,7 @@ class Cms extends Object
         file_put_contents($filePath, '<?php'.PHP_EOL.'namespace '.$this->presenterNamespace.';'.PHP_EOL.(string) $class);
         require_once ($filePath); //We need to require new presenter ASAP
 
-        $this->menuRepository->savePresenterAction($menu, $this->dashesToCamelCase($menu->getSlug()), 'default');
+        $this->menuRepository->savePresenterAction($menu, $this->presenterPrefix.$menu->getId(), 'default');
 
         return $componentList;
     }

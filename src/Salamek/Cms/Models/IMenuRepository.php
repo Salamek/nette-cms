@@ -40,6 +40,12 @@ interface IMenuRepository
     public function resetIsHomePage();
 
     /**
+     * @param IMenu $menu
+     * @return IMenu[]
+     */
+    public function buildParentTree(IMenu $menu);
+    
+    /**
      * @param $presenter
      * @param $action
      * @param array $parameters
@@ -56,7 +62,7 @@ interface IMenuRepository
     /**
      * @param $slug
      * @param array $parameters
-     * @return mixed
+     * @return IMenu
      */
     public function getBySlug($slug, $parameters = []);
 

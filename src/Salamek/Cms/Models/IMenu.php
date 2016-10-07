@@ -97,7 +97,7 @@ interface IMenu
      * @param boolean $isSystem
      */
     public function setIsSystem($isSystem);
-
+    
     /**
      * @param $parameters
      * @param callable $parameterSumGenerator
@@ -189,6 +189,11 @@ interface IMenu
      * @return string
      */
     public function getSlug();
+
+    /**
+     * @return integer
+     */
+    public function getId();
 
     /**
      * @return string
