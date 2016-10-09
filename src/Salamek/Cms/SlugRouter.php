@@ -4,15 +4,13 @@ namespace Salamek\Cms;
 
 
 use App\Model\Structure\Entities\Menu;
-use App\Model\Structure\Repository\MenuRepository;
+use Nette;
+use Nette\Application\IRouter;
 use Nette\Application\Request;
 use Nette\Application\Routers;
-use Nette\Utils\Strings;
 use Nette\Object;
-use Nette\Application\IRouter;
-use Nette;
+use Nette\Utils\Strings;
 use Salamek\Cms\Models\IMenuRepository;
-use Tracy\Debugger;
 
 /**
  * Description of SlugRouter
@@ -116,10 +114,20 @@ class SlugRouter extends Object implements IRouter
     /** @var IMenuRepository */
     private $structureMenuRepository;
 
-    public function __construct($mask, IMenuRepository $menuRepository)
+    /** @var string */
+    private $module;
+
+    /**
+     * SlugRouter constructor.
+     * @param $mask
+     * @param IMenuRepository $menuRepository
+     * @param string $module
+     */
+    public function __construct($mask, IMenuRepository $menuRepository, $module = 'Front')
     {
         $this->structureMenuRepository = $menuRepository;
         $this->setMask($mask);
+        $this->module = $module;
     }
 
     /**
@@ -433,7 +441,12 @@ class SlugRouter extends Object implements IRouter
         }
 
 
-        $params[self::PRESENTER_KEY] = $pageInfo->getPresenter();
+        if ($this->module) {
+            $params[self::PRESENTER_KEY] = str_replace(':'.$this->module.':','', $pageInfo->getPresenter());
+        } else {
+            $params[self::PRESENTER_KEY] = $pageInfo->getPresenter();
+        }
+
         $params['action'] = $pageInfo->getAction();
 
         // 5) BUILD Request
@@ -467,18 +480,17 @@ class SlugRouter extends Object implements IRouter
      */
     public function constructUrl(Nette\Application\Request $appRequest, Nette\Http\Url $refUrl)
     {
-        $pageInfo = $this->structureMenuRepository->getByPresenterAndActionAndParameters($appRequest->getPresenterName(), $appRequest->parameters['action'], null);
+        $pageInfo = $this->structureMenuRepository->getByPresenterAndActionAndParameters(($this->module ? ':' . $this->module . ':' : '') . $appRequest->getPresenterName(),
+            $appRequest->parameters['action'], null);
         $params = $appRequest->parameters;
         if ($pageInfo && $pageInfo->isHomePage() == true) {
             $params['slug'] = null;
-        }
-        else if ($pageInfo)
-        {
-            $params['slug'] = $pageInfo->getSlug();
-        }
-        else
-        {
-            return null;
+        } else {
+            if ($pageInfo) {
+                $params['slug'] = $pageInfo->getSlug();
+            } else {
+                return null;
+            }
         }
 
         $appRequest->setParameters($params);
