@@ -679,7 +679,7 @@ class Cms extends Object
         file_put_contents($filePath, '<?php'.PHP_EOL.'namespace '.$this->presenterNamespace.';'.PHP_EOL.(string) $class);
         require_once ($filePath); //We need to require new presenter ASAP
 
-        $this->menuRepository->savePresenterAction($menu, $this->presenterPrefix.$menu->getId(), 'default');
+        $this->menuRepository->savePresenterAction($menu, ($this->presenterNamespace ? ':'.str_replace('Module', '', $this->presenterNamespace).':' : '').$this->presenterPrefix.$menu->getId(), 'default');
 
         return $componentList;
     }
