@@ -48,10 +48,9 @@ interface IMenuRepository
     /**
      * @param $presenter
      * @param $action
-     * @param array $parameters
      * @return mixed
      */
-    public function getByPresenterAndActionAndParameters($presenter, $action, $parameters = []);
+    public function getByPresenterAction($presenter, $action);
 
     /**
      * @param IMenu $child
