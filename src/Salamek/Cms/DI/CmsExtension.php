@@ -26,9 +26,10 @@ class CmsExtension extends Nette\DI\CompilerExtension
 
 
         $builder->addDefinition($this->prefix('cms'))
-            ->setClass('Salamek\Cms\Cms', [$config['tempPath'], $config['presenterNamespace'], $config['layoutDir'], $config['parentClass'], $config['mappings'], $config['defaultLayout']])
+            ->setClass('Salamek\Cms\Cms', [$config['tempPath'], $config['presenterModule'], $config['presenterMapping'], $config['layoutDir'], $config['parentClass'], $config['mappings'], $config['defaultLayout']])
             ->addSetup('setTempPath', [$config['tempPath']])
-            ->addSetup('setPresenterNamespace', [$config['presenterNamespace']])
+            ->addSetup('setPresenterModule', [$config['presenterModule']])
+            ->addSetup('setPresenterMapping', [$config['presenterMapping']])
             ->addSetup('setLayoutDir', [$config['layoutDir']])
             ->addSetup('setParentClass', [$config['parentClass']])
             ->addSetup('setDefaultLayout', [$config['defaultLayout']])
@@ -215,7 +216,8 @@ class CmsExtension extends Nette\DI\CompilerExtension
     {
         $defaults = [
             'tempPath' => $this->getContainerBuilder()->parameters['tempDir'] . '/cms',
-            'presenterNamespace' => 'FrontModule',
+            'presenterModule' => 'Front',
+            'presenterMapping' => '*Module\*Presenter',
             'layoutDir' => $this->getContainerBuilder()->parameters['appDir'] . '/FrontModule/templates',
             'defaultLayout' => 'layout',
             'parentClass' => 'CmsPresenter',

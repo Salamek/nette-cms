@@ -16,17 +16,24 @@ use Salamek\Cms\Models\IMenuRepository;
 use Tracy\Debugger;
 
 /**
- * Class TemplatedEmail
- * @package Salamek\TemplatedEmail
+ * Class Cms
+ * @package Salamek\Cms
  */
 class Cms extends Object
 {
+    /** @var string */
     private $tempPath;
 
-    private $presenterNamespace;
+    /** @var string */
+    private $presenterModule;
 
+    /** @var string */
+    private $presenterMapping;
+
+    /** @var string */
     private $layoutDir;
 
+    /** @var string */
     private $parentClass;
 
     /** @var ICmsComponentRepository[] */
@@ -44,13 +51,13 @@ class Cms extends Object
     /** @var string */
     private $defaultLayout = 'layout';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $cmsComponentMacroName = 'cms';
 
+    /** @var string */
     private $defaultBlockName = 'content';
 
+    /** @var string */
     private $presenterPrefix = 'Cms';
 
     /** @var IMenuRepository */
@@ -61,11 +68,25 @@ class Cms extends Object
 
     /** @var Application */
     private $application;
-    
-    public function __construct($tempPath, $presenterNamespace, $layoutDir, $parentClass, $mappings, $defaultLayout, IMenuRepository $menuRepository, IMenuContentRepository $contentRepository, Application $application)
+
+    /**
+     * Cms constructor.
+     * @param $tempPath
+     * @param $presenterModule
+     * @param $presenterMapping
+     * @param $layoutDir
+     * @param $parentClass
+     * @param $mappings
+     * @param $defaultLayout
+     * @param IMenuRepository $menuRepository
+     * @param IMenuContentRepository $contentRepository
+     * @param Application $application
+     */
+    public function __construct($tempPath, $presenterModule, $presenterMapping, $layoutDir, $parentClass, $mappings, $defaultLayout, IMenuRepository $menuRepository, IMenuContentRepository $contentRepository, Application $application)
     {
         $this->setTempPath($tempPath);
-        $this->setPresenterNamespace($presenterNamespace);
+        $this->setPresenterModule($presenterModule);
+        $this->setPresenterMapping($presenterMapping);
         $this->setLayoutDir($layoutDir);
         $this->setParentClass($parentClass);
         $this->setMappings($mappings);
@@ -76,26 +97,49 @@ class Cms extends Object
         $this->application = $application;
     }
 
+    /**
+     * @param $tempPath
+     */
     public function setTempPath($tempPath)
     {
         $this->tempPath = $tempPath;
     }
 
-    public function setPresenterNamespace($presenterNamespace)
+    /**
+     * @param $presenterModule
+     */
+    public function setPresenterModule($presenterModule)
     {
-        $this->presenterNamespace = $presenterNamespace;
+        $this->presenterModule = $presenterModule;
     }
 
+    /**
+     * @param $presenterMapping
+     */
+    public function setPresenterMapping($presenterMapping)
+    {
+        $this->presenterMapping = $presenterMapping;
+    }
+
+    /**
+     * @param $layoutDir
+     */
     public function setLayoutDir($layoutDir)
     {
         $this->layoutDir = $layoutDir;
     }
 
+    /**
+     * @param $parentClass
+     */
     public function setParentClass($parentClass)
     {
         $this->parentClass = $parentClass;
     }
 
+    /**
+     * @param $defaultLayout
+     */
     public function setDefaultLayout($defaultLayout)
     {
         $this->defaultLayout = $defaultLayout;
@@ -120,9 +164,9 @@ class Cms extends Object
     /**
      * @return mixed
      */
-    public function getPresenterNamespace()
+    public function getPresenterModule()
     {
-        return $this->presenterNamespace;
+        return $this->presenterModule;
     }
 
     /**
@@ -573,8 +617,42 @@ class Cms extends Object
             }
         }
 
-
         $this->generateEditableLatteTemplate($menu, $structure);
+    }
+
+    /**
+     * @return string
+     */
+    private function getModuleName()
+    {
+        $matches = [];
+        if (preg_match('/\*(\S+)\\\/', $this->presenterMapping, $matches))
+        {
+            return $this->presenterModule.$matches[1];
+        }
+        elseif ($this->presenterModule)
+        {
+            return $this->presenterModule.'Module';
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    private function getModuleNamespace()
+    {
+        if (preg_match('/^(\S+\*\S+)\\\/', $this->presenterMapping, $matches))
+        {
+            return str_replace('*', $this->presenterModule, $matches[1]).PHP_EOL;
+        }
+        elseif ($this->presenterModule)
+        {
+            return $this->presenterModule.'Module';
+        }
+
+        return null;
     }
 
     /**
@@ -583,19 +661,19 @@ class Cms extends Object
     public function generateMenuPage(IMenu $menu)
     {
         //Create namespace dir
-        $presenterDir = $this->tempPath.'/'.$this->presenterNamespace;
+        $presenterDir = $this->tempPath.'/'.$this->getModuleName();
         $this->mkdir($presenterDir);
 
         //Create templates dir
         $this->mkdir($this->tempPath.'/templates');
 
         //Create templates namespace dir
-        $this->mkdir($this->tempPath.'/templates/'.str_replace('Module', '', $this->presenterNamespace));
+        $this->mkdir($this->tempPath.'/templates/'.$this->presenterModule);
 
         $componentList = $this->generateMenuPresenter($menu, $presenterDir);
 
         //Create templates presenter dir
-        $templatePath = $this->tempPath.'/templates/'.str_replace('Module', '', $this->presenterNamespace).'/'.$this->presenterPrefix.$menu->getId();
+        $templatePath = $this->tempPath.'/templates/'.$this->presenterModule.'/'.$this->presenterPrefix.$menu->getId();
         $this->mkdir($templatePath);
 
         $this->generateMenuTemplate($menu, $componentList, $templatePath);
@@ -638,7 +716,7 @@ class Cms extends Object
         $class = new ClassType($presenterName);
         $class->setAbstract(false)
             ->setFinal(true)
-            ->setExtends((Strings::startsWith($this->parentClass, $this->presenterNamespace) ? ltrim(str_replace($this->presenterNamespace, '', $this->parentClass), '\\') : '\\'.$this->parentClass))
+            ->setExtends((Strings::startsWith($this->parentClass, $this->getModuleNamespace()) ? ltrim(str_replace($this->getModuleNamespace(), '', $this->parentClass), '\\') : '\\'.$this->parentClass))
             ->addTrait('\Salamek\Cms\TCmsPresenter')
             ->addComment("This is generated class, do not edit anything here, it will get overwritten!!!");
 
@@ -676,10 +754,10 @@ class Cms extends Object
         }
 
         $filePath = $path.'/'.$presenterName.'.php';
-        file_put_contents($filePath, '<?php'.PHP_EOL.'namespace '.$this->presenterNamespace.';'.PHP_EOL.(string) $class);
+        file_put_contents($filePath, '<?php'.PHP_EOL.'namespace '.$this->getModuleNamespace().';'.PHP_EOL.(string) $class);
         require_once ($filePath); //We need to require new presenter ASAP
 
-        $this->menuRepository->savePresenterAction($menu, ($this->presenterNamespace ? ':'.str_replace('Module', '', $this->presenterNamespace).':' : '').$this->presenterPrefix.$menu->getId(), 'default');
+        $this->menuRepository->savePresenterAction($menu, ($this->presenterModule ? ':'.$this->presenterModule.':' : '').$this->presenterPrefix.$menu->getId(), 'default');
 
         return $componentList;
     }
@@ -787,22 +865,6 @@ class Cms extends Object
         if (!is_dir($dir) || !is_writable($dir)) {
             throw new IOException("Please create writable directory $dir.");
         }
-    }
-
-    /**
-     * @param $string
-     * @param bool $capitalizeFirstCharacter
-     * @return mixed
-     */
-    private function dashesToCamelCase($string, $capitalizeFirstCharacter = true)
-    {
-        $str = str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
-
-        if (!$capitalizeFirstCharacter) {
-            $str[0] = strtolower($str[0]);
-        }
-
-        return $str;
     }
 
     /**
