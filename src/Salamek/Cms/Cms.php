@@ -720,6 +720,10 @@ class Cms extends Object
             ->addTrait('\Salamek\Cms\TCmsPresenter')
             ->addComment("This is generated class, do not edit anything here, it will get overwritten!!!");
 
+        $class->addProperty('menuId')
+            ->setVisibility('public')
+            ->setValue($menu->getId());
+        /*
         $class->addMethod('renderDefault')
             ->setFinal(true)
             ->addBody('$this->setLayout(?);', [$menu->getLayoutName()])
@@ -729,7 +733,7 @@ class Cms extends Object
             ->addBody('$this->template->metaRobots = ?;', [$menu->getMetaRobots()])
             ->addBody('$this->template->h1 = ?;', [$menu->getH1()])
             ->addBody('$this->template->showH1 = ?;', [$menu->isShowH1()])
-            ->addBody('$this->template->bodyClass = ?;', [($menu->isHomePage() ? 'homepage': 'subpage')]);
+            ->addBody('$this->template->bodyClass = ?;', [($menu->isHomePage() ? 'homepage': 'subpage')]);*/
 
         $componentList = [];
         $usedInjections = [];
@@ -741,7 +745,7 @@ class Cms extends Object
                     ->setVisibility('public')
                     ->addComment('@var '.(Strings::startsWith($menuContent->getFactory(), '\\') ? $menuContent->getFactory() : '\\'.$menuContent->getFactory()).' @inject');
 
-                $usedInjections[] = $usedInjections;
+                $usedInjections[] = $propertyName;
             }
 
             $componentName = ucfirst($propertyName).$menuContent->getId();

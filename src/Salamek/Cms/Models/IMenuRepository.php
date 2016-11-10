@@ -13,12 +13,13 @@ interface IMenuRepository
      * @return array
      */
     public function getById($id);
-    
+
     /**
      * @param $id
-     * @return mixed|null|IMenu
+     * @param ILocale|null $locale
+     * @return IMenu|null
      */
-    public function getOneById($id);
+    public function getOneById($id, ILocale $locale = null);
 
     /**
      * @param $name
@@ -28,11 +29,12 @@ interface IMenuRepository
 
     /**
      * @param $name
-     * @param IMenu $parentMenu
+     * @param ILocale $locale
+     * @param IMenu|null $parentMenu
      * @param IMenu|null $ignoreMenu
      * @return bool
      */
-    public function isNameFree($name, IMenu $parentMenu = null, IMenu $ignoreMenu = null);
+    public function isNameFree($name, ILocale $locale, IMenu $parentMenu = null, IMenu $ignoreMenu = null);
 
     /**
      * @return void
@@ -44,7 +46,7 @@ interface IMenuRepository
      * @return IMenu[]
      */
     public function buildParentTree(IMenu $menu);
-    
+
     /**
      * @param $presenter
      * @param $action
@@ -61,9 +63,10 @@ interface IMenuRepository
     /**
      * @param $slug
      * @param array $parameters
-     * @return IMenu
+     * @param ILocale|null $locale
+     * @return mixed
      */
-    public function getBySlug($slug, $parameters = []);
+    public function getBySlug($slug, $parameters = [], $locale = null);
 
     /**
      * @return IMenu

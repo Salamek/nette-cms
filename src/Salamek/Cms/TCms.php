@@ -5,13 +5,11 @@
 
 namespace Salamek\Cms;
 
-
 trait TCms
 {
-
     /** @var Cms */
-    public $cms;
-    
+    private $cms;
+
     /**
      * @param Cms $cms
      */

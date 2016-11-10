@@ -10,6 +10,7 @@ use Nette\Application\Request;
 use Nette\Application\Routers;
 use Nette\Object;
 use Nette\Utils\Strings;
+use Salamek\Cms\Models\ILocale;
 use Salamek\Cms\Models\IMenuRepository;
 
 /**
@@ -155,6 +156,9 @@ class SlugRouter extends Object implements IRouter
         return $res;
     }
 
+    /**
+     * @param $mask
+     */
     private function setMask($mask)
     {
         $metadata = [];
@@ -427,9 +431,11 @@ class SlugRouter extends Object implements IRouter
             }
         }
 
+        $locale = (array_key_exists('locale', $params) ? $params['locale'] : null);
+
         // Find presenter
         /** @var Menu $pageInfo */
-        list($pageInfo, $advancedParams) = $this->structureMenuRepository->getBySlug($params['slug'], $params);
+        list($pageInfo, $advancedParams) = $this->structureMenuRepository->getBySlug($params['slug'], $params, $locale);
         if (!$pageInfo) {
             return null;
         }

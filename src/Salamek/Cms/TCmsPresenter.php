@@ -6,12 +6,19 @@
 namespace Salamek\Cms;
 
 
+use Salamek\Cms\Models\ILocaleRepository;
+use Salamek\Cms\Models\IMenuRepository;
+
 trait TCmsPresenter
 {
-
     /** @var Cms */
-    public $cms;
+    private $cms;
 
+    /** @var IMenuRepository */
+    private $menuRepository;
+
+    /** @var ILocaleRepository */
+    private $localeRepository;
 
     /**
      * @param Cms $cms
@@ -21,12 +28,40 @@ trait TCmsPresenter
         $this->cms = $cms;
     }
 
+    /**
+     * @param IMenuRepository $IMenuRepository
+     */
+    public function injectMenuRepository(IMenuRepository $IMenuRepository)
+    {
+        $this->menuRepository = $IMenuRepository;
+    }
+
+    /**
+     * @param ILocaleRepository $localeRepository
+     */
+    public function injectLocaleRepository(ILocaleRepository $localeRepository)
+    {
+        $this->localeRepository = $localeRepository;
+    }
+
+    public final function renderDefault()
+    {
+        $menu = $this->menuRepository->getOneById($this->menuId, $this->localeRepository->getCurrentLocale());
+        $this->setLayout($menu->getLayoutName());
+        $this->template->metaDescription = $menu->getMetaDescription();
+        $this->template->title = $menu->getTitle();
+        $this->template->metaKeywords = $menu->getMetaKeywords();
+        $this->template->metaRobots = $menu->getMetaRobots();
+        $this->template->h1 = $menu->getH1();
+        $this->template->showH1 = $menu->isShowH1();
+        $this->template->bodyClass = ($menu->isHomePage() ? 'homepage': 'subpage');
+    }
 
     /**
      * Formats layout template file names.
      * @return array
      */
-    public function formatLayoutTemplateFiles()
+    public final function formatLayoutTemplateFiles()
     {
         $name = $this->getName();
         $presenter = substr($name, strrpos(':' . $name, ':'));
