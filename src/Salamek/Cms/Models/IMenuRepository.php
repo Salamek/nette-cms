@@ -118,7 +118,28 @@ interface IMenuRepository
         array $parameters = [],
         $isRegularExpression = false,
         $isRegularExpressionMatchArguments = false,
-        $layoutName = 'layout');
+        $layoutName = 'layout'
+    );
+
+    /**
+     * @param IMenu $menu
+     * @param ILocale $locale
+     * @param $name
+     * @param $metaDescription
+     * @param $metaKeywords
+     * @param $title
+     * @param $h1
+     * @throws \Exception
+     */
+    public function translateMenu(
+        IMenu $menu,
+        ILocale $locale,
+        $name,
+        $metaDescription,
+        $metaKeywords,
+        $title,
+        $h1
+    );
 
     /**
      * @param IMenu $menu

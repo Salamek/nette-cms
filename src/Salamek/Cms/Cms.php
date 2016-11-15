@@ -7,6 +7,7 @@ use Nette\IOException;
 use Nette\PhpGenerator\ClassType;
 use Nette\Utils\Finder;
 use Nette\Utils\Strings;
+use Salamek\Cms\Models\ILocaleRepository;
 use Salamek\Cms\Models\IMenu;
 use Nette\Utils\Html;
 use Nette\Object;
@@ -66,6 +67,9 @@ class Cms extends Object
     /** @var IMenuContentRepository */
     private $contentRepository;
 
+    /** @var ILocaleRepository */
+    private $localeRepository;
+
     /** @var Application */
     private $application;
 
@@ -80,9 +84,10 @@ class Cms extends Object
      * @param $defaultLayout
      * @param IMenuRepository $menuRepository
      * @param IMenuContentRepository $contentRepository
+     * @param ILocaleRepository $localeRepository
      * @param Application $application
      */
-    public function __construct($tempPath, $presenterModule, $presenterMapping, $layoutDir, $parentClass, $mappings, $defaultLayout, IMenuRepository $menuRepository, IMenuContentRepository $contentRepository, Application $application)
+    public function __construct($tempPath, $presenterModule, $presenterMapping, $layoutDir, $parentClass, $mappings, $defaultLayout, IMenuRepository $menuRepository, IMenuContentRepository $contentRepository, ILocaleRepository $localeRepository, Application $application)
     {
         $this->setTempPath($tempPath);
         $this->setPresenterModule($presenterModule);
@@ -94,6 +99,7 @@ class Cms extends Object
 
         $this->menuRepository = $menuRepository;
         $this->contentRepository = $contentRepository;
+        $this->localeRepository = $localeRepository;
         $this->application = $application;
     }
 
@@ -804,13 +810,13 @@ class Cms extends Object
 
         if (!$menu)
         {
-            $componentActionInfo = $componentRepository->getActionOption($action, $parameters);
+            $componentActionInfo = $componentRepository->getActionOption($action, $parameters, $this->localeRepository->getDefault());
             $menu = $this->menuRepository->createNewMenu(
                 $componentActionInfo->getName(),
                 $componentActionInfo->getMetaDescription(),
                 $componentActionInfo->getMetaKeywords(),
                 $componentActionInfo->getMetaRobots(),
-                $componentActionInfo->getName(),
+                $componentActionInfo->getTitle(),
                 $componentActionInfo->getName(),
                 true,
                 true,
@@ -827,6 +833,12 @@ class Cms extends Object
                 $this->defaultLayout
             );
 
+            foreach($this->localeRepository->getActive() AS $activeLocale)
+            {
+                $componentActionInfoLocalized = $componentRepository->getActionOption($action, $parameters, $activeLocale);
+                $this->menuRepository->translateMenu($menu, $activeLocale, $componentActionInfoLocalized->getName(), $componentActionInfoLocalized->getMetaDescription(), $componentActionInfoLocalized->getMetaKeywords(), $componentActionInfoLocalized->getTitle(), $componentActionInfoLocalized->getName());
+            }
+            
             $this->generateEditableLatteTemplate($menu, [ //block
                 $this->defaultBlockName => [ //rows
                     [ //row

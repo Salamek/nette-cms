@@ -1,6 +1,8 @@
 <?php
 namespace Salamek\Cms;
 
+use Salamek\Cms\Models\ILocale;
+
 
 /**
  * Description of iCmsComponentRepository
@@ -18,7 +20,8 @@ interface ICmsComponentRepository
     /**
      * @param string $componentAction
      * @param array $parameters
+     * @param ILocale $locale
      * @return ICmsActionOption
      */
-    public function getActionOption($componentAction, array $parameters);
+    public function getActionOption($componentAction, array $parameters, ILocale $locale);
 }

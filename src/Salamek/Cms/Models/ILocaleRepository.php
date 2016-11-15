@@ -12,4 +12,14 @@ interface ILocaleRepository
      * @return ILocale
      */
     public function getCurrentLocale();
+
+    /**
+     * @return ILocale
+     */
+    public function getDefault();
+
+    /**
+     * @return ILocale[]
+     */
+    public function getActive();
 }
