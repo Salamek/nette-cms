@@ -8,6 +8,7 @@ namespace Salamek\Cms;
 
 use Salamek\Cms\Models\ILocaleRepository;
 use Salamek\Cms\Models\IMenuRepository;
+use WebLoader\Nette\LoaderFactory;
 
 trait TCmsPresenter
 {
@@ -34,6 +35,14 @@ trait TCmsPresenter
     public function injectMenuRepository(IMenuRepository $IMenuRepository)
     {
         $this->menuRepository = $IMenuRepository;
+    }
+
+    /**
+     * @param LoaderFactory $webLoader
+     */
+    public function injectLoaderFactory(LoaderFactory $webLoader)
+    {
+        $this->webLoader = $webLoader;
     }
 
     /**
@@ -71,10 +80,10 @@ trait TCmsPresenter
         $layout = $this->layout ? $this->layout : 'layout';
         $dir = dirname($this->getReflection()->getFileName());
         $dir = is_dir("$dir/templates") ? $dir : dirname($dir);
-        $list = array(
+        $list = [
             "$dir/templates/$moduleName/$presenter/@$layout.latte",
             "$dir/templates/$moduleName/$presenter.@$layout.latte",
-        );
+        ];
         do {
             $list[] = $this->cms->getLayoutDir()."/@$layout.latte";
             $dir = dirname($dir);

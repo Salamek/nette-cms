@@ -160,7 +160,7 @@ class Cms extends Object
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTempPath()
     {
@@ -168,7 +168,7 @@ class Cms extends Object
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPresenterModule()
     {
@@ -176,7 +176,7 @@ class Cms extends Object
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getLayoutDir()
     {
@@ -184,11 +184,19 @@ class Cms extends Object
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getParentClass()
     {
         return $this->parentClass;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLayout()
+    {
+        return $this->defaultLayout;
     }
 
     /**
