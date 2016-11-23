@@ -112,9 +112,9 @@ class CmsExtension extends Nette\DI\CompilerExtension
 
         $replaceWildcard = '\*';
         $wildcardsReplaces = [
-            '(?P<module>\S+)',
-            '(?P<component>\S+)',
-            '(?P<action>\S+)'
+            '(?P<module>[^\\\\\\\\]*?)',
+            '(?P<component>[^\\\\\\\\]*?)',
+            '(?P<action>[^\\\\\\\\]*?)'
         ];
 
         $occurrence = substr_count($mapping, $replaceWildcard);
@@ -123,6 +123,8 @@ class CmsExtension extends Nette\DI\CompilerExtension
             $from = '/'.preg_quote($replaceWildcard, '/').'/';
             $mapping = preg_replace($from, $wildcardsReplaces[$i], $mapping, 1);
         }
+
+        $mapping = preg_replace('/'.preg_quote('\-', '/').'/', '([^\\\\\\\\]*?)', $mapping);
 
         return '/^'.$mapping.'$/i';
     }
