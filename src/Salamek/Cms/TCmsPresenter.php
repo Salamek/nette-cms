@@ -80,10 +80,7 @@ trait TCmsPresenter
         $layout = $this->layout ? $this->layout : 'layout';
         $dir = dirname($this->getReflection()->getFileName());
         $dir = is_dir("$dir/templates") ? $dir : dirname($dir);
-        $list = [
-            "$dir/templates/$moduleName/$presenter/@$layout.latte",
-            "$dir/templates/$moduleName/$presenter.@$layout.latte",
-        ];
+        $list = parent::formatLayoutTemplateFiles();
         do {
             $list[] = $this->cms->getLayoutDir()."/@$layout.latte";
             $dir = dirname($dir);
