@@ -10,55 +10,17 @@ interface IMenuRepository
 {
     /**
      * @param $id
-     * @return array
-     */
-    public function getById($id);
-
-    /**
-     * @param $id
      * @param ILocale|null $locale
      * @return IMenu|null
      */
     public function getOneById($id, ILocale $locale = null);
 
     /**
-     * @param $name
-     * @return mixed|null|IMenu
-     */
-    public function getByName($name);
-
-    /**
-     * @param $name
-     * @param ILocale $locale
-     * @param IMenu|null $parentMenu
-     * @param IMenu|null $ignoreMenu
-     * @return bool
-     */
-    public function isNameFree($name, ILocale $locale, IMenu $parentMenu = null, IMenu $ignoreMenu = null);
-
-    /**
-     * @return void
-     */
-    public function resetIsHomePage();
-
-    /**
-     * @param IMenu $menu
-     * @return IMenu[]
-     */
-    public function buildParentTree(IMenu $menu);
-
-    /**
      * @param $presenter
      * @param $action
      * @return mixed
      */
-    public function getByPresenterAction($presenter, $action);
-
-    /**
-     * @param IMenu $child
-     * @param IMenu $root
-     */
-    public function persistAsLastChildOf(IMenu $child, IMenu $root);
+    public function getOneByPresenterAction($presenter, $action);
 
     /**
      * @param $slug
@@ -66,12 +28,7 @@ interface IMenuRepository
      * @param ILocale|null $locale
      * @return mixed
      */
-    public function getBySlug($slug, $parameters = [], $locale = null);
-
-    /**
-     * @return IMenu
-     */
-    public function getHomePage();
+    public function getOneBySlug($slug, $parameters = [], $locale = null);
 
     /**
      * @return IMenu[]

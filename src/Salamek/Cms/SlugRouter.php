@@ -435,7 +435,7 @@ class SlugRouter extends Object implements IRouter
 
         // Find presenter
         /** @var Menu $pageInfo */
-        list($pageInfo, $advancedParams) = $this->structureMenuRepository->getBySlug($params['slug'], $params, $locale);
+        list($pageInfo, $advancedParams) = $this->structureMenuRepository->getOneBySlug($params['slug'], $params, $locale);
         if (!$pageInfo) {
             return null;
         }
@@ -486,7 +486,7 @@ class SlugRouter extends Object implements IRouter
      */
     public function constructUrl(Nette\Application\Request $appRequest, Nette\Http\Url $refUrl)
     {
-        $pageInfo = $this->structureMenuRepository->getByPresenterAction(($this->module ? ':' . $this->module . ':' : '') . $appRequest->getPresenterName(),
+        $pageInfo = $this->structureMenuRepository->getOneByPresenterAction(($this->module ? ':' . $this->module . ':' : '') . $appRequest->getPresenterName(),
             $appRequest->parameters['action'], null);
         $params = $appRequest->parameters;
         if ($pageInfo && $pageInfo->isHomePage() == true) {
