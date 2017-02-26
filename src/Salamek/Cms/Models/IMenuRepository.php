@@ -18,22 +18,23 @@ interface IMenuRepository
     /**
      * @param $presenter
      * @param $action
-     * @return mixed
+     * @param ILocale|null $locale
+     * @return IMenu|null
      */
-    public function getOneByPresenterAction($presenter, $action);
+    public function getOneByPresenterAction($presenter, $action, ILocale $locale = null);
 
     /**
      * @param $slug
      * @param array $parameters
      * @param ILocale|null $locale
-     * @return mixed
+     * @return IMenu|null
      */
-    public function getOneBySlug($slug, $parameters = [], $locale = null);
+    public function getOneBySlug($slug, $parameters = [], ILocale $locale = null);
 
     /**
      * @return IMenu[]
      */
-    public function getAll();
+    public function getAll(ILocale $locale = null);
 
     /**
      * @param $name
@@ -119,5 +120,5 @@ interface IMenuRepository
      * @param bool $isSystem
      * @return IMenu
      */
-    public function getOneByFactoryAndParametersAndIsSystem($factory, array $parameters = [], $isSystem = false);
+    public function getOneByFactoryAndParametersAndIsSystemAndLocale($factory, array $parameters = [], $isSystem = false, ILocale $locale = null);
 }
