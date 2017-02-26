@@ -10,39 +10,24 @@ interface IMenuRepository
 {
     /**
      * @param $id
-     * @param ILocale|null $locale
      * @return IMenu|null
      */
-    public function getOneById($id, ILocale $locale = null);
+    public function getOneById($id);
 
     /**
      * @param $presenter
      * @param $action
-     * @param ILocale|null $locale
      * @return IMenu|null
      */
-    public function getOneByPresenterAction($presenter, $action, ILocale $locale = null);
-
-    /**
-     * @param $slug
-     * @param array $parameters
-     * @param ILocale|null $locale
-     * @return IMenu|null
-     */
-    public function getOneBySlug($slug, $parameters = [], ILocale $locale = null);
+    public function getOneByPresenterAction($presenter, $action);
 
     /**
      * @return IMenu[]
      */
-    public function getAll(ILocale $locale = null);
+    public function getAll();
 
     /**
-     * @param $name
-     * @param $metaDescription
-     * @param $metaKeywords
-     * @param $metaRobots
-     * @param $title
-     * @param $h1
+     * @param $identifier
      * @param bool $isActive
      * @param bool $isHidden
      * @param bool $isHomePage
@@ -56,14 +41,10 @@ interface IMenuRepository
      * @param bool $isRegularExpression
      * @param bool $isRegularExpressionMatchArguments
      * @param string $layoutName
-     * @return IMenu
+     * @return mixed
      */
-    public function createNewMenu($name,
-        $metaDescription,
-        $metaKeywords,
-        $metaRobots,
-        $title,
-        $h1,
+    public function createNewMenu(
+        $identifier,
         $isActive = true,
         $isHidden = false,
         $isHomePage = false,
@@ -77,26 +58,6 @@ interface IMenuRepository
         $isRegularExpression = false,
         $isRegularExpressionMatchArguments = false,
         $layoutName = 'layout'
-    );
-
-    /**
-     * @param IMenu $menu
-     * @param ILocale $locale
-     * @param $name
-     * @param $metaDescription
-     * @param $metaKeywords
-     * @param $title
-     * @param $h1
-     * @throws \Exception
-     */
-    public function translateMenu(
-        IMenu $menu,
-        ILocale $locale,
-        $name,
-        $metaDescription,
-        $metaKeywords,
-        $title,
-        $h1
     );
 
     /**
@@ -120,5 +81,5 @@ interface IMenuRepository
      * @param bool $isSystem
      * @return IMenu
      */
-    public function getOneByFactoryAndParametersAndIsSystemAndLocale($factory, array $parameters = [], $isSystem = false, ILocale $locale = null);
+    public function getOneByFactoryAndParametersAndIsSystem($factory, array $parameters = [], $isSystem = false);
 }

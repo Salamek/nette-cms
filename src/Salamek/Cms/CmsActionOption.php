@@ -28,73 +28,23 @@ namespace Salamek\Cms;
 class CmsActionOption implements ICmsActionOption
 {
     /** @var string */
-    private $name;
-
-    /** @var string */
-    private $title;
-
-    /** @var string */
-    private $metaDescription;
-
-    /** @var string */
-    private $metaKeywords;
-
-    /** @var string */
     private $metaRobots = 'index, follow';
 
     /** @var array */
     private $parameters = [];
 
+    /** @var ICmsActionOptionTranslation[] */
+    private $translations = [];
 
     /**
      * CmsActionOption constructor.
-     * @param $name
-     * @param $title
-     * @param $metaDescription
-     * @param $metaKeywords
      * @param array $parameters
      * @param string $metaRobots
      */
-    public function __construct($name, array $parameters = [], $title = null, $metaDescription = null, $metaKeywords = null, $metaRobots = 'index, follow')
+    public function __construct(array $parameters = [], $metaRobots = 'index, follow')
     {
-
-        if (is_null($title))
-        {
-            $title = $name;
-        }
-
-        if (is_null($metaDescription))
-        {
-            $metaDescription = $name;
-        }
-
-        if (is_null($metaKeywords))
-        {
-            $metaKeywords = $name;
-        }
-
-        $this->name = $name;
-        $this->title = $title;
-        $this->metaDescription = $metaDescription;
-        $this->metaKeywords = $metaKeywords;
         $this->parameters = $parameters;
         $this->metaRobots = $metaRobots;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @param string $title
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
     }
 
 
@@ -106,61 +56,12 @@ class CmsActionOption implements ICmsActionOption
         $this->parameters = $parameters;
     }
 
-
-    /**
-     * @param string $metaDescription
-     */
-    public function setMetaDescription($metaDescription)
-    {
-        $this->metaDescription = $metaDescription;
-    }
-
-    /**
-     * @param string $metaKeywords
-     */
-    public function setMetaKeywords($metaKeywords)
-    {
-        $this->metaKeywords = $metaKeywords;
-    }
-
     /**
      * @param string $metaRobots
      */
     public function setMetaRobots($metaRobots)
     {
         $this->metaRobots = $metaRobots;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMetaDescription()
-    {
-        return $this->metaDescription;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMetaKeywords()
-    {
-        return $this->metaKeywords;
     }
 
     /**
@@ -192,5 +93,20 @@ class CmsActionOption implements ICmsActionOption
 
         return $this->parameters[$name];
     }
-    
+
+    /**
+     * @param ICmsActionOptionTranslation $cmsActionOptionTranslation
+     */
+    public function addTranslation(ICmsActionOptionTranslation $cmsActionOptionTranslation)
+    {
+        $this->translations[] = $cmsActionOptionTranslation;
+    }
+
+    /**
+     * @return ICmsActionOptionTranslation[]
+     */
+    public function getTranslations()
+    {
+        return $this->translations;
+    }
 }

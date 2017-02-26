@@ -14,6 +14,7 @@ use Nette\Object;
 use Salamek\Cms\Models\IMenuContent;
 use Salamek\Cms\Models\IMenuContentRepository;
 use Salamek\Cms\Models\IMenuRepository;
+use Salamek\Cms\Models\IMenuTranslationRepository;
 use Tracy\Debugger;
 
 /**
@@ -64,6 +65,9 @@ class Cms extends Object
     /** @var IMenuRepository */
     private $menuRepository;
 
+    /** @var IMenuTranslationRepository */
+    private $menuTranslationRepository;
+
     /** @var IMenuContentRepository */
     private $contentRepository;
 
@@ -83,11 +87,25 @@ class Cms extends Object
      * @param $mappings
      * @param $defaultLayout
      * @param IMenuRepository $menuRepository
+     * @param IMenuTranslationRepository $menuTranslationRepository
      * @param IMenuContentRepository $contentRepository
      * @param ILocaleRepository $localeRepository
      * @param Application $application
      */
-    public function __construct($tempPath, $presenterModule, $presenterMapping, $layoutDir, $parentClass, $mappings, $defaultLayout, IMenuRepository $menuRepository, IMenuContentRepository $contentRepository, ILocaleRepository $localeRepository, Application $application)
+    public function __construct(
+        $tempPath,
+        $presenterModule,
+        $presenterMapping,
+        $layoutDir,
+        $parentClass,
+        $mappings,
+        $defaultLayout,
+        IMenuRepository $menuRepository,
+        IMenuTranslationRepository $menuTranslationRepository,
+        IMenuContentRepository $contentRepository,
+        ILocaleRepository $localeRepository,
+        Application $application
+    )
     {
         $this->setTempPath($tempPath);
         $this->setPresenterModule($presenterModule);
@@ -98,6 +116,7 @@ class Cms extends Object
         $this->setDefaultLayout($defaultLayout);
 
         $this->menuRepository = $menuRepository;
+        $this->menuTranslationRepository = $menuTranslationRepository;
         $this->contentRepository = $contentRepository;
         $this->localeRepository = $localeRepository;
         $this->application = $application;
@@ -818,14 +837,10 @@ class Cms extends Object
 
         if (!$menu)
         {
-            $componentActionInfo = $componentRepository->getActionOption($action, $parameters, $this->localeRepository->getDefault());
+            $componentActionInfo = $componentRepository->getActionOption($action, $parameters);
+            $identifier = md5(microtime(true).$action.json_encode($parameters));
             $menu = $this->menuRepository->createNewMenu(
-                $componentActionInfo->getName(),
-                $componentActionInfo->getMetaDescription(),
-                $componentActionInfo->getMetaKeywords(),
-                $componentActionInfo->getMetaRobots(),
-                $componentActionInfo->getTitle(),
-                $componentActionInfo->getName(),
+                $identifier,
                 true,
                 true,
                 false,
@@ -841,10 +856,17 @@ class Cms extends Object
                 $this->defaultLayout
             );
 
-            foreach($this->localeRepository->getActive() AS $activeLocale)
+            foreach($componentActionInfo->getTranslations() AS $translation)
             {
-                $componentActionInfoLocalized = $componentRepository->getActionOption($action, $parameters, $activeLocale);
-                $this->menuRepository->translateMenu($menu, $activeLocale, $componentActionInfoLocalized->getName(), $componentActionInfoLocalized->getMetaDescription(), $componentActionInfoLocalized->getMetaKeywords(), $componentActionInfoLocalized->getTitle(), $componentActionInfoLocalized->getName());
+                $this->menuTranslationRepository->translateMenu(
+                    $menu,
+                    $translation->getLocale(),
+                    $translation->getName(),
+                    $translation->getMetaDescription(),
+                    $translation->getMetaKeywords(),
+                    $translation->getTitle(),
+                    $translation->getName()
+                );
             }
             
             $this->generateEditableLatteTemplate($menu, [ //block
@@ -869,7 +891,7 @@ class Cms extends Object
     public function getLinkForMenu(IMenu $menu)
     {
         $parameters = $menu->getParameters();
-        $parameters['slug'] = $menu->getSlug();
+        $parameters['slug'] = $this->menuTranslationRepository->getOneByMenu($menu, $this->localeRepository->getCurrentLocale())->getSlug();
         return $this->application->getPresenter()->link($menu->getPresenter().':'.$menu->getAction(), $parameters);
     }
 

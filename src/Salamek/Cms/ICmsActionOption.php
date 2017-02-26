@@ -10,30 +10,6 @@ namespace Salamek\Cms;
 interface ICmsActionOption
 {
     /**
-     * @param string $name
-     * @return void
-     */
-    public function setName($name);
-
-    /**
-     * @param string $title
-     * @return void
-     */
-    public function setTitle($title);
-
-    /**
-     * @param string $metaDescription
-     * @return void
-     */
-    public function setMetaDescription($metaDescription);
-
-    /**
-     * @param string $metaKeywords
-     * @return void
-     */
-    public function setMetaKeywords($metaKeywords);
-
-    /**
      * @param string $metaRobots
      * @return void
      */
@@ -44,26 +20,12 @@ interface ICmsActionOption
      * @return void
      */
     public function setParameters(array $parameters);
-    
-    /**
-     * @return string
-     */
-    public function getName();
 
     /**
-     * @return string
+     * @param ICmsActionOptionTranslation $cmsActionOptionTranslation
+     * @return mixed
      */
-    public function getTitle();
-
-    /**
-     * @return string
-     */
-    public function getMetaDescription();
-
-    /**
-     * @return string
-     */
-    public function getMetaKeywords();
+    public function addTranslation(ICmsActionOptionTranslation $cmsActionOptionTranslation);
 
     /**
      * @return string
@@ -80,4 +42,10 @@ interface ICmsActionOption
      * @return mixed
      */
     public function getParameter($name);
+
+    /**
+     * @return ICmsActionOptionTranslation[]
+     */
+    public function getTranslations();
+
 }
