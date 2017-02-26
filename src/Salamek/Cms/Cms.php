@@ -409,7 +409,7 @@ class Cms extends Object
             if (is_array($actionOptions) && !empty($actionOptions))
             {
                 foreach ($actionOptions AS $actionOption) {
-                    $response[$this->array2string(['factory' => $action['implement'], 'parameters' => $actionOption->getParameters()])] = $actionName . ': ' . $actionOption->getName();
+                    $response[$this->array2string(['factory' => $action['implement'], 'parameters' => $actionOption->getParameters()])] = $actionName . ': ' . $actionOption->getIdentifier();
                 }
             }
             else if (is_null($actionOptions))
