@@ -28,6 +28,9 @@ namespace Salamek\Cms;
 class CmsActionOption implements ICmsActionOption
 {
     /** @var string */
+    private $identifier;
+
+    /** @var string */
     private $metaRobots = 'index, follow';
 
     /** @var array */
@@ -38,11 +41,13 @@ class CmsActionOption implements ICmsActionOption
 
     /**
      * CmsActionOption constructor.
+     * @param $identifier
      * @param array $parameters
      * @param string $metaRobots
      */
-    public function __construct(array $parameters = [], $metaRobots = 'index, follow')
+    public function __construct($identifier, array $parameters = [], $metaRobots = 'index, follow')
     {
+        $this->identifier = $identifier;
         $this->parameters = $parameters;
         $this->metaRobots = $metaRobots;
     }
@@ -65,11 +70,27 @@ class CmsActionOption implements ICmsActionOption
     }
 
     /**
+     * @param string $identifier
+     */
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
+    }
+    
+    /**
      * @return string
      */
     public function getMetaRobots()
     {
         return $this->metaRobots;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
     }
 
     /**

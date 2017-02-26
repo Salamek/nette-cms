@@ -838,7 +838,7 @@ class Cms extends Object
         if (!$menu)
         {
             $componentActionInfo = $componentRepository->getActionOption($action, $parameters);
-            $identifier = md5(microtime(true).$action.json_encode($parameters));
+            $identifier = $componentActionInfo->getIdentifier().'-'.md5(microtime(true).$action.json_encode($parameters));
             $menu = $this->menuRepository->createNewMenu(
                 $identifier,
                 true,

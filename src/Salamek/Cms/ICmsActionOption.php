@@ -10,6 +10,12 @@ namespace Salamek\Cms;
 interface ICmsActionOption
 {
     /**
+     * @param string $identifier
+     * @return void
+     */
+    public function setIdentifier($identifier);
+
+    /**
      * @param string $metaRobots
      * @return void
      */
@@ -42,6 +48,11 @@ interface ICmsActionOption
      * @return mixed
      */
     public function getParameter($name);
+
+    /**
+     * @return string
+     */
+    public function getIdentifier();
 
     /**
      * @return ICmsActionOptionTranslation[]
