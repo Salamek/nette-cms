@@ -487,13 +487,13 @@ class SlugRouter extends Object implements IRouter
     public function constructUrl(Nette\Application\Request $appRequest, Nette\Http\Url $refUrl)
     {
         $pageInfo = $this->structureMenuRepository->getOneByPresenterAction(($this->module ? ':' . $this->module . ':' : '') . $appRequest->getPresenterName(),
-            $appRequest->parameters['action'], null);
+            $appRequest->parameters['action']);
         $params = $appRequest->parameters;
         if ($pageInfo && $pageInfo->isHomePage() == true) {
             $params['slug'] = null;
         } else {
             if ($pageInfo) {
-                $params['slug'] = $pageInfo->getSlug();
+                $params['slug'] = $pageInfo->getSlug(); //!FIXME 
             } else {
                 return null;
             }
