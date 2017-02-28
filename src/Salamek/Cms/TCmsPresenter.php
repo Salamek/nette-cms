@@ -73,6 +73,7 @@ trait TCmsPresenter
 
         $translated = $this->menuTranslationRepository->getOneByMenu($menu, $this->localeRepository->getCurrentLocale());
 
+        $this->template->identifier = $menu->getIdentifier();
         $this->template->metaDescription = $translated->getMetaDescription();
         $this->template->title = $translated->getTitle();
         $this->template->metaKeywords = $translated->getMetaKeywords();

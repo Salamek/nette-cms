@@ -57,4 +57,9 @@ interface IMenu
      * @return IMenuContent[]
      */
     public function getMenuContents();
+
+    /**
+     * @return string
+     */
+    public function getIdentifier();
 }
