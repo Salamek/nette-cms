@@ -77,6 +77,9 @@ class Cms extends Object
     /** @var Application */
     private $application;
 
+    /** @var array */
+    private $templateOverrides;
+
     /**
      * Cms constructor.
      * @param $tempPath
@@ -176,6 +179,11 @@ class Cms extends Object
     public function setMappings(array $mappings)
     {
         $this->mappings = $mappings;
+    }
+
+    public function setTemplateOverrides(array $templateOverrides)
+    {
+        $this->templateOverrides = $templateOverrides;
     }
 
     /**
@@ -783,11 +791,17 @@ class Cms extends Object
 
             $componentName = ucfirst($propertyName).$menuContent->getId();
             $componentList[$menuContent->getId()] = $componentName;
-            $class->addMethod('createComponent'.$componentName)
+            $method = $class->addMethod('createComponent'.$componentName)
                 ->setFinal(true)
-                ->addBody('$cmsComponentConfiguration = new \Salamek\Cms\CmsActionOption(\'NIY\', '.var_export($menuContent->getParameters(), true).');')
-                ->addBody('$control = $this->?->create($cmsComponentConfiguration);', [$propertyName])
-                ->addBody('return $control;');
+                ->addBody('$cmsComponentConfiguration = new \Salamek\Cms\CmsActionOption(?, '.var_export($menuContent->getParameters(), true).');', [$menuContent->getFactory()]);
+
+            if (array_key_exists($menuContent->getFactory(), $this->templateOverrides))
+            {
+                $method->addBody('$cmsComponentConfiguration->setTemplatePath(?);', [$this->templateOverrides[$menuContent->getFactory()]]);
+            }
+
+            $method->addBody('$control = $this->?->create($cmsComponentConfiguration);', [$propertyName]);
+            $method->addBody('return $control;');
         }
 
         $filePath = $path.'/'.$presenterName.'.php';

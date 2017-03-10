@@ -59,4 +59,9 @@ interface ICmsActionOption
      */
     public function getTranslations();
 
+    /**
+     * @param $default
+     * @return string
+     */
+    public function getTemplatePath($default);
 }

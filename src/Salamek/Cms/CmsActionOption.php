@@ -39,6 +39,9 @@ class CmsActionOption implements ICmsActionOption
     /** @var ICmsActionOptionTranslation[] */
     private $translations = [];
 
+    /** @var null|string */
+    private $templatePath = null;
+
     /**
      * CmsActionOption constructor.
      * @param $identifier
@@ -52,6 +55,13 @@ class CmsActionOption implements ICmsActionOption
         $this->metaRobots = $metaRobots;
     }
 
+    /**
+     * @param $templatePath
+     */
+    public function setTemplatePath($templatePath)
+    {
+        $this->templatePath = $templatePath;
+    }
 
     /**
      * @param array $parameters
@@ -117,10 +127,12 @@ class CmsActionOption implements ICmsActionOption
 
     /**
      * @param ICmsActionOptionTranslation $cmsActionOptionTranslation
+     * @return $this
      */
     public function addTranslation(ICmsActionOptionTranslation $cmsActionOptionTranslation)
     {
         $this->translations[] = $cmsActionOptionTranslation;
+        return $this;
     }
 
     /**
@@ -129,5 +141,14 @@ class CmsActionOption implements ICmsActionOption
     public function getTranslations()
     {
         return $this->translations;
+    }
+
+    /**
+     * @param $default
+     * @return null|string
+     */
+    public function getTemplatePath($default)
+    {
+        return ($this->templatePath ? $this->templatePath : $default);
     }
 }

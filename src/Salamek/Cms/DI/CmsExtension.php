@@ -33,7 +33,8 @@ class CmsExtension extends Nette\DI\CompilerExtension
             ->addSetup('setLayoutDir', [$config['layoutDir']])
             ->addSetup('setParentClass', [$config['parentClass']])
             ->addSetup('setDefaultLayout', [$config['defaultLayout']])
-            ->addSetup('setMappings', [$config['mappings']]);
+            ->addSetup('setMappings', [$config['mappings']])
+            ->addSetup('setTemplateOverrides', [$config['templateOverrides']]);
 
         $builder->addDefinition($this->prefix('helpers'))
             ->setClass('Salamek\Cms\TemplateHelpers')
@@ -223,7 +224,8 @@ class CmsExtension extends Nette\DI\CompilerExtension
             'layoutDir' => $this->getContainerBuilder()->parameters['appDir'] . '/FrontModule/templates',
             'defaultLayout' => 'layout',
             'parentClass' => 'CmsPresenter',
-            'mappings' => []
+            'mappings' => [],
+            'templateOverrides' => []
         ];
 
         return parent::getConfig($defaults, $expand);
