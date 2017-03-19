@@ -28,6 +28,9 @@ class CmsActionOptionTranslation implements ICmsActionOptionTranslation
     /** @var string */
     private $metaKeywords;
 
+    /** @var string|null */
+    private $slug = null;
+
     /**
      * CmsActionOptionTranslation constructor.
      * @param $locale
@@ -35,14 +38,16 @@ class CmsActionOptionTranslation implements ICmsActionOptionTranslation
      * @param $title
      * @param $metaDescription
      * @param $metaKeywords
+     * @param $slug
      */
-    public function __construct(ILocale $locale, $name, $title, $metaDescription, $metaKeywords)
+    public function __construct(ILocale $locale, $name, $title, $metaDescription, $metaKeywords, $slug = null)
     {
         $this->locale = $locale;
         $this->name = $name;
         $this->title = $title;
         $this->metaDescription = $metaDescription;
         $this->metaKeywords = $metaKeywords;
+        $this->slug = $slug;
     }
 
 
@@ -124,6 +129,23 @@ class CmsActionOptionTranslation implements ICmsActionOptionTranslation
     public function getLocale()
     {
         return $this->locale;
+    }
+
+    /**
+     * @param null $slug
+     * @return void
+     */
+    public function setSlug($slug = null)
+    {
+        $this->slug = $slug;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
     }
 
 }

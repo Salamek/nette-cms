@@ -41,6 +41,12 @@ interface ICmsActionOptionTranslation
     public function setMetaKeywords($metaKeywords);
 
     /**
+     * @param null|string $slug
+     * @return mixed
+     */
+    public function setSlug($slug = null);
+
+    /**
      * @return string
      */
     public function getName();
@@ -64,4 +70,9 @@ interface ICmsActionOptionTranslation
      * @return ILocale
      */
     public function getLocale();
+
+    /**
+     * @return string|null
+     */
+    public function getSlug();
 }

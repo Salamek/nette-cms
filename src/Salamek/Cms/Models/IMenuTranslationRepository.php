@@ -31,7 +31,8 @@ interface IMenuTranslationRepository
      * @param $metaKeywords
      * @param $title
      * @param $name
+     * @param $slug
      * @return mixed
      */
-    public function translateMenu(IMenu $menu, ILocale $locale, $h1, $metaDescription, $metaKeywords, $title, $name);
+    public function translateMenu(IMenu $menu, ILocale $locale, $h1, $metaDescription, $metaKeywords, $title, $name, $slug = null);
 }

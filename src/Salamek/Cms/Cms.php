@@ -879,7 +879,8 @@ class Cms extends Object
                     $translation->getMetaDescription(),
                     $translation->getMetaKeywords(),
                     $translation->getTitle(),
-                    $translation->getName()
+                    $translation->getName(),
+                    $translation->getSlug()
                 );
             }
             
