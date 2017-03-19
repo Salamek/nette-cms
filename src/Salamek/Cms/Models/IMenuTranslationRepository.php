@@ -25,6 +25,13 @@ interface IMenuTranslationRepository
 
     /**
      * @param IMenu $menu
+     * @param ILocale|null $locale
+     * @return mixed
+     */
+    public function getSlugByMenu(IMenu $menu, ILocale $locale = null);
+
+    /**
+     * @param IMenu $menu
      * @param ILocale $locale
      * @param $h1
      * @param $metaDescription

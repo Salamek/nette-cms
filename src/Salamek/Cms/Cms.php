@@ -840,7 +840,7 @@ class Cms extends Object
 
         /** @var ICmsComponentRepository $componentRepository */
         $componentRepository = $this->tree[$module][$component]['repository']['object'];
-
+        
         //Find menu item by componentAction and parameters created by system
         $menu = $this->menuRepository->getOneByFactoryAndParametersAndIsSystem($componentAction['implement'], $parameters, true);
 
@@ -906,7 +906,7 @@ class Cms extends Object
     public function getLinkForMenu(IMenu $menu)
     {
         $parameters = $menu->getParameters();
-        $parameters['slug'] = $this->menuTranslationRepository->getOneByMenu($menu, $this->localeRepository->getCurrentLocale())->getSlug();
+        $parameters['slug'] = $this->menuTranslationRepository->getSlugByMenu($menu, $this->localeRepository->getCurrentLocale());
         return $this->application->getPresenter()->link($menu->getPresenter().':'.$menu->getAction(), $parameters);
     }
 
