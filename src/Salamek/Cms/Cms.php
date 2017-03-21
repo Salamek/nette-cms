@@ -860,7 +860,7 @@ class Cms extends Object
                 false,
                 '0.4',
                 true,
-                true,
+                false,
                 null,
                 null,
                 true,
