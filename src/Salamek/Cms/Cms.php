@@ -842,63 +842,66 @@ class Cms extends Object
         $componentRepository = $this->tree[$module][$component]['repository']['object'];
         
         //Find menu item by componentAction and parameters created by system
-        $menu = $this->menuRepository->getOneByFactoryAndParametersAndIsSystem($componentAction['implement'], $parameters, true);
-
-        if (!$menu)
+        $menuContent = $this->contentRepository->getOneByFactoryAndParametersAndIsSystem($componentAction['implement'], $parameters, true);
+        if ($menuContent)
         {
-            $menu = $this->menuRepository->getOneByFactoryAndParametersAndIsSystem($componentAction['implement'], $parameters, false);
+            return $menuContent->getMenu();
         }
 
-        if (!$menu)
+        $menuContent = $this->contentRepository->getOneByFactoryAndParametersAndIsSystem($componentAction['implement'], $parameters, false);
+        if ($menuContent)
         {
-            $componentActionInfo = $componentRepository->getActionOption($action, $parameters);
-            $identifier = $componentActionInfo->getIdentifier().'-'.md5(microtime(true).$action.json_encode($parameters));
-            $menu = $this->menuRepository->createNewMenu(
-                $identifier,
-                true,
-                true,
-                false,
-                '0.4',
-                true,
-                false,
-                null,
-                null,
-                true,
-                [],
-                false,
-                false,
-                $this->defaultLayout
-            );
+            return $menuContent->getMenu();
+        }
 
-            foreach($componentActionInfo->getTranslations() AS $translation)
-            {
-                $this->menuTranslationRepository->translateMenu(
-                    $menu,
-                    $translation->getLocale(),
-                    $translation->getName(),
-                    $translation->getMetaDescription(),
-                    $translation->getMetaKeywords(),
-                    $translation->getTitle(),
-                    $translation->getName(),
-                    $translation->getSlug()
-                );
-            }
-            
-            $this->generateEditableLatteTemplate($menu, [ //block
-                $this->defaultBlockName => [ //rows
-                    [ //row
-                        [ //col
-                            'col' => '12',
-                            'type' => 'sm',
-                            'action' => [
-                                'factory' => $componentAction['implement'],
-                                'parameters' => $componentActionInfo->getParameters()
-                            ]
+        $componentActionInfo = $componentRepository->getActionOption($action, $parameters);
+        $identifier = $componentActionInfo->getIdentifier().'-'.md5(microtime(true).$action.json_encode($parameters));
+        $menu = $this->menuRepository->createNewMenu(
+            $identifier,
+            true,
+            true,
+            false,
+            '0.4',
+            true,
+            false,
+            null,
+            null,
+            true,
+            [],
+            false,
+            false,
+            $this->defaultLayout
+        );
+
+        foreach($componentActionInfo->getTranslations() AS $translation)
+        {
+            $this->menuTranslationRepository->translateMenu(
+                $menu,
+                $translation->getLocale(),
+                $translation->getName(),
+                $translation->getMetaDescription(),
+                $translation->getMetaKeywords(),
+                $translation->getTitle(),
+                $translation->getName(),
+                $translation->getSlug()
+            );
+        }
+
+        $this->generateEditableLatteTemplate($menu, [ //block
+            $this->defaultBlockName => [ //rows
+                [ //row
+                    [ //col
+                        'col' => '12',
+                        'type' => 'sm',
+                        'action' => [
+                            'factory' => $componentAction['implement'],
+                            'parameters' => $componentActionInfo->getParameters()
                         ]
                     ]
                 ]
-            ]);
-        }
+            ]
+        ]);
+
 
         return $menu;
     }

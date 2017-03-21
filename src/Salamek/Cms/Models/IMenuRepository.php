@@ -74,12 +74,4 @@ interface IMenuRepository
      * @return mixed
      */
     public function savePresenterAction(IMenu $menu, $presenterName, $actionName);
-
-    /**
-     * @param $factory
-     * @param array $parameters
-     * @param bool $isSystem
-     * @return IMenu
-     */
-    public function getOneByFactoryAndParametersAndIsSystem($factory, array $parameters = [], $isSystem = false);
 }

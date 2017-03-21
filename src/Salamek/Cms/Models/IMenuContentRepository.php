@@ -34,4 +34,12 @@ interface IMenuContentRepository
      * @return mixed
      */
     public function clearMenuContent(IMenu $menu);
+
+    /**
+     * @param $factory
+     * @param array $parameters
+     * @param bool $isSystem
+     * @return IMenuContent
+     */
+    public function getOneByFactoryAndParametersAndIsSystem($factory, array $parameters = [], $isSystem = false);
 }
