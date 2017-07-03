@@ -104,4 +104,23 @@ trait TCmsPresenter
         } while ($dir && ($name = substr($name, 0, strrpos($name, ':'))));
         return $list;
     }
+    
+    /**
+     * @param $name
+     * @param array $parameters
+     * @return mixed
+     */
+    public function cmsLink($name, array $parameters = [])
+    {
+        return $this->cms->getLinkForMenu($this->cms->findComponentActionPresenter($name, $parameters));
+    }
+
+    /**
+     * @param $name
+     * @param array $parameters
+     */
+    public function cmsRedirect($name, array $parameters = [])
+    {
+        $this->redirectUrl($this->cms->getLinkForMenu($this->cms->findComponentActionPresenter($name, $parameters)));
+    }
 }
