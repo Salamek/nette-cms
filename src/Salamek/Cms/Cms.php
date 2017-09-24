@@ -15,7 +15,6 @@ use Salamek\Cms\Models\IMenuContent;
 use Salamek\Cms\Models\IMenuContentRepository;
 use Salamek\Cms\Models\IMenuRepository;
 use Salamek\Cms\Models\IMenuTranslationRepository;
-use Tracy\Debugger;
 
 /**
  * Class Cms
@@ -873,19 +872,41 @@ class Cms extends Object
             $this->defaultLayout
         );
 
-        foreach($componentActionInfo->getTranslations() AS $translation)
+        if (empty($componentActionInfo->getTranslations()))
         {
-            $this->menuTranslationRepository->translateMenu(
-                $menu,
-                $translation->getLocale(),
-                $translation->getName(),
-                $translation->getMetaDescription(),
-                $translation->getMetaKeywords(),
-                $translation->getTitle(),
-                $translation->getName(),
-                $translation->getSlug()
-            );
+            $name = $componentActionInfo->getIdentifier();
+            foreach($this->localeRepository->getActive() AS $locale)
+            {
+                $this->menuTranslationRepository->translateMenu(
+                    $menu,
+                    $locale,
+                    $name,
+                    $name,
+                    $name,
+                    $name,
+                    $name,
+                    $name
+                );
+            }
         }
+        else
+        {
+            foreach($componentActionInfo->getTranslations() AS $translation)
+            {
+                $this->menuTranslationRepository->translateMenu(
+                    $menu,
+                    $translation->getLocale(),
+                    $translation->getName(),
+                    $translation->getMetaDescription(),
+                    $translation->getMetaKeywords(),
+                    $translation->getTitle(),
+                    $translation->getName(),
+                    $translation->getSlug()
+                );
+            }
+        }
+
+
 
         $this->generateEditableLatteTemplate($menu, [ //block
             $this->defaultBlockName => [ //rows
