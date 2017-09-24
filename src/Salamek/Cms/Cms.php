@@ -884,7 +884,6 @@ class Cms extends Object
                     $name,
                     $name,
                     $name,
-                    $name,
                     $name
                 );
             }
