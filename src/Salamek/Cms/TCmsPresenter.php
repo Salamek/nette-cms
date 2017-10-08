@@ -112,7 +112,8 @@ trait TCmsPresenter
      */
     public function cmsLink($name, array $parameters = [])
     {
-        return $this->cms->getLinkForMenu($this->cms->findComponentActionPresenter($name, $parameters));
+        $menu = $this->cms->findComponentActionPresenter($name, $parameters);
+        return $this->link($menu->getPresenter().':'.$menu->getAction());
     }
 
     /**
