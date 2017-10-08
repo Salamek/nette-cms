@@ -929,7 +929,7 @@ class Cms extends Object
     public function getLinkForMenu(IMenu $menu)
     {
         $parameters = $menu->getParameters();
-        $parameters['slug'] = $this->menuTranslationRepository->getSlugByMenu($menu, $this->localeRepository->getCurrentLocale());
+        //!FIXME Looks like this is not needed anymore... $parameters['slug'] = $this->menuTranslationRepository->getSlugByMenu($menu, $this->localeRepository->getCurrentLocale());
         return $this->application->getPresenter()->link($menu->getPresenter().':'.$menu->getAction(), $parameters);
     }
 
