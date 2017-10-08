@@ -121,6 +121,7 @@ trait TCmsPresenter
      */
     public function cmsRedirect($name, array $parameters = [])
     {
-        $this->redirectUrl($this->cms->getLinkForMenu($this->cms->findComponentActionPresenter($name, $parameters)));
+        $menu = $this->cms->findComponentActionPresenter($name, $parameters);
+        $this->redirect($menu->getPresenter().':'.$menu->getAction());
     }
 }
