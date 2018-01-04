@@ -8,7 +8,7 @@ use Nette;
 use Nette\Application\IRouter;
 use Nette\Application\Request;
 use Nette\Application\Routers;
-use Nette\Object;
+use Nette\SmartObject;
 use Nette\Utils\Strings;
 use Salamek\Cms\Models\ILocale;
 use Salamek\Cms\Models\IMenuRepository;
@@ -18,9 +18,10 @@ use Salamek\Cms\Models\IMenuRepository;
  *
  * @author Adam Schubert <adam.schubert@sg1-game.net>
  */
-class SlugRouter extends Object implements IRouter
+class SlugRouter implements IRouter
 {
-
+    use SmartObject;
+    
     const PRESENTER_KEY = 'presenter';
     const MODULE_KEY = 'module';
 

@@ -14,8 +14,9 @@ use Nette;
  * Class TemplateHelpers
  * @package Salamek\Cms
  */
-class TemplateHelpers extends Nette\Object
+class TemplateHelpers
 {
+    use Nette\SmartObject;
 
     /**
      * @var Cms

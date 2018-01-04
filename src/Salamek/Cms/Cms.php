@@ -10,7 +10,7 @@ use Nette\Utils\Strings;
 use Salamek\Cms\Models\ILocaleRepository;
 use Salamek\Cms\Models\IMenu;
 use Nette\Utils\Html;
-use Nette\Object;
+use Nette\SmartObject;
 use Salamek\Cms\Models\IMenuContent;
 use Salamek\Cms\Models\IMenuContentRepository;
 use Salamek\Cms\Models\IMenuRepository;
@@ -20,8 +20,10 @@ use Salamek\Cms\Models\IMenuTranslationRepository;
  * Class Cms
  * @package Salamek\Cms
  */
-class Cms extends Object
+class Cms
 {
+    use SmartObject;
+
     /** @var string */
     private $tempPath;
 
