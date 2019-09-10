@@ -81,6 +81,7 @@ trait TCmsPresenter
         $this->template->h1 = $translated->getH1();
         $this->template->showH1 = $menu->isShowH1();
         $this->template->bodyClass = ($menu->isHomePage() ? 'homepage': 'subpage');
+        $this->template->isHomePage = $menu->isHomePage();
     }
 
     /**
